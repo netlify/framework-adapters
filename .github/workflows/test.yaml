@@ -23,6 +23,8 @@ jobs:
         node-install-version: ['24.15.0']
         include:
           - os: ubuntu-latest
+            # min node-version required for styleText import from
+            # node:util in some dependency
             node-version: '20.12.0'
             node-install-version: '20.12.0'
       fail-fast: false
