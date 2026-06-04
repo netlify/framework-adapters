@@ -46,8 +46,11 @@ jobs:
       - name: Build
         run: npm run build --workspaces
       - name: Lint
+        if: matrix.node-version != '20.19.0'
         run: npm run lint -w ./packages/nuxt-module
       - name: Typecheck
         run: npm run test:types -w ./packages/nuxt-module
       - name: Tests
         run: npm run test:ci -w ./packages/nuxt-module
+        env:
+          TMPDIR: /tmp

@@ -32,7 +32,7 @@
     "prepack": "npm run build",
     "publint": "npx -y publint --strict",
     "test": "exit 0",
-    "test:ci": "TMPDIR=/tmp vitest run",
+    "test:ci": "vitest run",
     "test:dev": "vitest",
     "test:types": "vue-tsc --noEmit",
     "test:watch": "vitest watch"
