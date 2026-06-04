@@ -65,7 +65,7 @@ jobs:
       - name: Flag fork PR
         if:
           ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name !=
-          'netlify/primitives' }}
+          'netlify/framework-adapters' }}
         run: echo "SKIP_LIVE_TESTS=true" >> "$GITHUB_ENV"
       - name: Tests
         run: npm run test --workspaces=true
