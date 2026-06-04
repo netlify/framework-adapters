@@ -23,11 +23,8 @@ jobs:
         node-install-version: ['24.15.0']
         include:
           - os: ubuntu-latest
-            # Many of our dependencies require 20.6.0, so we use the same minimum.
-            # But there is a blocking bug in 20.6.0, fixed in 20.6.1:
-            # https://github.com/nuxt/nuxt/issues/23020#issuecomment-1719828889
-            node-version: '20.6.1'
-            node-install-version: '20.6.1'
+            node-version: '20.12.0'
+            node-install-version: '20.12.0'
       fail-fast: false
     steps:
       # Increasing the maximum number of open files. See:
