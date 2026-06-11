@@ -1,4 +1,4 @@
-# Netlify Primitives
+# Netlify Framework Adapters
 
 Implementation of different Netlify framework adapters.
 

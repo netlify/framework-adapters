@@ -46,11 +46,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/netlify/primitives.git",
+    "url": "https://github.com/netlify/framework-adapters.git",
     "directory": "packages/nuxt-module"
   },
   "bugs": {
-    "url": "https://github.com/netlify/primitives/issues"
+    "url": "https://github.com/netlify/framework-adapters/issues"
   },
   "author": "Netlify Inc.",
   "dependencies": {
@@ -64,7 +64,7 @@
     "@nuxt/devtools-kit": "^2.6.2",
     "@nuxt/eslint-config": "^1.5.2",
     "@nuxt/module-builder": "^1.0.1",
-    "@nuxt/schema": "^4.0.0",
+    "@nuxt/schema": "^3.17.6",
     "@nuxt/test-utils": "^3.19.2",
     "@types/node": "^22.16.3",
     "eslint": "^9.30.1",
