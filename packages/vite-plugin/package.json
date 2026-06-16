@@ -29,11 +29,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/netlify/primitives.git",
+    "url": "https://github.com/netlify/framework-adapters.git",
     "directory": "packages/vite-plugin"
   },
   "bugs": {
-    "url": "https://github.com/netlify/primitives/issues"
+    "url": "https://github.com/netlify/framework-adapters/issues"
   },
   "author": "Netlify Inc.",
   "devDependencies": {
@@ -41,7 +41,7 @@
     "playwright": "^1.60.0",
     "tsup": "^8.0.0",
     "vite": "^6.3.6",
-    "vitest": "^3.0.0"
+    "vitest": "3.2.4"
   },
   "dependencies": {
     "@netlify/dev": "4.18.7",

@@ -46,8 +46,13 @@ jobs:
       - name: Build
         run: npm run build --workspaces
       - name: Lint
+        # skip linting on node 20 due to eslint issues
+        # specifically, TypeError: Object.groupBy is not a function
+        if: matrix.node-version != '20.19.0'
         run: npm run lint -w ./packages/nuxt-module
       - name: Typecheck
         run: npm run test:types -w ./packages/nuxt-module
       - name: Tests
         run: npm run test:ci -w ./packages/nuxt-module
+        env:
+          TMPDIR: ${{ runner.os == 'Windows' && 'C:\\Temp' || '/tmp' }}
