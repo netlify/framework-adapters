@@ -1,5 +1,63 @@
 # Changelog
 
+## [3.0.0](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.7...vite-plugin-v3.0.0) (2026-06-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop EOL'd node 18 support in new packages ([#252](https://github.com/netlify/framework-adapters/issues/252))
+* fix `engines.node` ([#210](https://github.com/netlify/framework-adapters/issues/210))
+
+### Features
+
+* accept `IncomingMessage` in handler ([#267](https://github.com/netlify/framework-adapters/issues/267)) ([aa84022](https://github.com/netlify/framework-adapters/commit/aa84022cf9ecb2258dce39b87b0a21ec73524914))
+* add `@netlify/nuxt` Nuxt module ([#344](https://github.com/netlify/framework-adapters/issues/344)) ([efdf8df](https://github.com/netlify/framework-adapters/commit/efdf8dfb22ffe33b557d2140fd3a3152e23cc95c))
+* add `@netlify/vite-plugin-tanstack-start` ([#455](https://github.com/netlify/framework-adapters/issues/455)) ([fd8b2cc](https://github.com/netlify/framework-adapters/commit/fd8b2cc9012801c190f332089e9f4322fad95a45))
+* add `db` package ([#581](https://github.com/netlify/framework-adapters/issues/581)) ([b60a313](https://github.com/netlify/framework-adapters/commit/b60a313bd9ba19fd5deced4736012c3d7c7fe842))
+* add `serverAddress` to request handler ([#308](https://github.com/netlify/framework-adapters/issues/308)) ([fa811f2](https://github.com/netlify/framework-adapters/commit/fa811f24d473d471108f560abc484d17ea11bd70))
+* add actual dev geolocation to functions and edge functions context ([#345](https://github.com/netlify/framework-adapters/issues/345)) ([916c38b](https://github.com/netlify/framework-adapters/commit/916c38b84632b705a1d6ab4bfc6d60bfebd1ed2c))
+* add support for edge functions ([#233](https://github.com/netlify/framework-adapters/issues/233)) ([c80d77d](https://github.com/netlify/framework-adapters/commit/c80d77ddf59e394f9d8a84a96275c25c1b9aefc0))
+* add support for environment variables ([#197](https://github.com/netlify/framework-adapters/issues/197)) ([03878db](https://github.com/netlify/framework-adapters/commit/03878dbfff4e7e379b9d3e4fb6d9d783e66cc2af))
+* add support for headers config ([#200](https://github.com/netlify/framework-adapters/issues/200)) ([dca313e](https://github.com/netlify/framework-adapters/commit/dca313ec82980231724a2d801bcc739df1d27924))
+* add Vite plugin ([#165](https://github.com/netlify/framework-adapters/issues/165)) ([2ec775e](https://github.com/netlify/framework-adapters/commit/2ec775e29be11138f77f8db73e2a3bcfdbe88934))
+* Adds W3C trace context propagation to tracer provider ([#471](https://github.com/netlify/framework-adapters/issues/471)) ([afe4656](https://github.com/netlify/framework-adapters/commit/afe4656df5c3bed13ae8c3357205c07efa27c698))
+* ai gateway disabled check ([#577](https://github.com/netlify/framework-adapters/issues/577)) ([5c2a8ce](https://github.com/netlify/framework-adapters/commit/5c2a8ce6aa9b324cd44a24c519086855299e780c))
+* image cdn support ([#232](https://github.com/netlify/framework-adapters/issues/232)) ([01c844d](https://github.com/netlify/framework-adapters/commit/01c844d82a27a9812be7634219d9bdc69a128985))
+* move `getEnvironment` to `runtime-utils` ([#579](https://github.com/netlify/framework-adapters/issues/579)) ([639ba5f](https://github.com/netlify/framework-adapters/commit/639ba5f5d5659bcf96894dc627a87af42c8fc19f))
+* support multiple directories to serve static files ([#253](https://github.com/netlify/framework-adapters/issues/253)) ([153f6ef](https://github.com/netlify/framework-adapters/commit/153f6efda2e681d98753ebd7a1cb487ffc55560b))
+* support Vite 8 ([#624](https://github.com/netlify/framework-adapters/issues/624)) ([5810573](https://github.com/netlify/framework-adapters/commit/5810573df62e247a5795127a04170e4b6366f445))
+* unflag database ([#667](https://github.com/netlify/framework-adapters/issues/667)) ([76d95a1](https://github.com/netlify/framework-adapters/commit/76d95a1de14712f858f24d90a430e9b7bca9f3e7))
+
+
+### Bug Fixes
+
+* adjust dependencies and exports ([#169](https://github.com/netlify/framework-adapters/issues/169)) ([7ebbd3a](https://github.com/netlify/framework-adapters/commit/7ebbd3aa3126c8ebe6c9880c62b3ad50b0b219c2))
+* apply fixes required for Vite plugin in Astro  ([#332](https://github.com/netlify/framework-adapters/issues/332)) ([fb8588e](https://github.com/netlify/framework-adapters/commit/fb8588ee2731c40ee2c33997c026bc86542c71d0))
+* clean up edge functions server ([#310](https://github.com/netlify/framework-adapters/issues/310)) ([243f3b4](https://github.com/netlify/framework-adapters/commit/243f3b472d1350eb6a80d8f736385750de8bc0d4))
+* **deps:** loosen vite peer dep to support vite 5 ([#287](https://github.com/netlify/framework-adapters/issues/287)) ([2fcddad](https://github.com/netlify/framework-adapters/commit/2fcddad17e8554553b1b89f928434cf7e7ee094f))
+* **deps:** loosen vite peer dep to support vite 7 ([#340](https://github.com/netlify/framework-adapters/issues/340)) ([7cc76e6](https://github.com/netlify/framework-adapters/commit/7cc76e6e5a9f308d857f59399329a752a1ee999c))
+* **docs:** update outdated vite plugin readme ([#365](https://github.com/netlify/framework-adapters/issues/365)) ([8ad4e63](https://github.com/netlify/framework-adapters/commit/8ad4e63efd7a6d27c75c8b44a50b4db6c4f22fd7))
+* drop EOL'd node 18 support in new packages ([#252](https://github.com/netlify/framework-adapters/issues/252)) ([38791ab](https://github.com/netlify/framework-adapters/commit/38791ab91dcbf1f05093ba123eaccdf960a2d6e7))
+* expect bundle entry in its env's outDir ([#573](https://github.com/netlify/framework-adapters/issues/573)) ([a66e648](https://github.com/netlify/framework-adapters/commit/a66e648521c3659c0fef7fd148ca3ee9c6984dd9))
+* fix package settings and add publint ([#180](https://github.com/netlify/framework-adapters/issues/180)) ([dc093b4](https://github.com/netlify/framework-adapters/commit/dc093b4bece80c79b73981602033e60497f87aa4))
+* ignore SPA redirect in dev mode to allow Vite to take over ([#514](https://github.com/netlify/framework-adapters/issues/514)) ([510642b](https://github.com/netlify/framework-adapters/commit/510642b575b10e1595f19bbeab475ffcaa35b1f2))
+* improve static file handler ([#248](https://github.com/netlify/framework-adapters/issues/248)) ([eb6c134](https://github.com/netlify/framework-adapters/commit/eb6c134965a1653b3f3bebd9ec44df334589551e))
+* loosen vite 6 peer dependency ([#239](https://github.com/netlify/framework-adapters/issues/239)) ([38b89fd](https://github.com/netlify/framework-adapters/commit/38b89fd509830431e33f1051abb64a6c37a96f13))
+* make plugin a no-op when running inside the CLI ([#181](https://github.com/netlify/framework-adapters/issues/181)) ([097dcc0](https://github.com/netlify/framework-adapters/commit/097dcc07add9c787fe8f160f1ecec4908bffa534))
+* mention `middleware` option default in docstring ([#240](https://github.com/netlify/framework-adapters/issues/240)) ([4b004de](https://github.com/netlify/framework-adapters/commit/4b004dee96dacc220de5bdaea7b9ef16f7bea507))
+* **nuxt-module,vite-plugin:** await fromWebResponse to prevent race condition ([#605](https://github.com/netlify/framework-adapters/issues/605)) ([d9e2f17](https://github.com/netlify/framework-adapters/commit/d9e2f175f1f760f27ece4fa140d50156584475c3))
+* pass `images` option from Vite plugin ([#351](https://github.com/netlify/framework-adapters/issues/351)) ([b4ec7f2](https://github.com/netlify/framework-adapters/commit/b4ec7f2fe674c007f3bbacb49cb97be768e27b0c))
+* reset dupe plugin tracker on dev server close ([#486](https://github.com/netlify/framework-adapters/issues/486)) ([df82f89](https://github.com/netlify/framework-adapters/commit/df82f8977197ba35071624047ffb9684a6c8ae15))
+* revamp dev and vite plugin logging ([#269](https://github.com/netlify/framework-adapters/issues/269)) ([de9b46c](https://github.com/netlify/framework-adapters/commit/de9b46c1cb1c7b2bf6437ab516134e44203d83b7))
+* support publish dir being set to not root directory ([#256](https://github.com/netlify/framework-adapters/issues/256)) ([4987223](https://github.com/netlify/framework-adapters/commit/4987223d8850d4a724eb6f9bdbc855edbe463e50))
+* update Netlify brand diamond icon ([#224](https://github.com/netlify/framework-adapters/issues/224)) ([1ce8106](https://github.com/netlify/framework-adapters/commit/1ce81067f890d0435c51c525425dee8968ba9880))
+* **vite-plugin:** pass environmentVariables option to NetlifyDev ([#442](https://github.com/netlify/framework-adapters/issues/442)) ([214ac26](https://github.com/netlify/framework-adapters/commit/214ac26f0da3e598b29e8ee7c8c9434de4468703))
+
+
+### Build System
+
+* fix `engines.node` ([#210](https://github.com/netlify/framework-adapters/issues/210)) ([5604545](https://github.com/netlify/framework-adapters/commit/56045450d0f6c24988a8956c1946209bda4502bc))
+
 ## [2.12.7](https://github.com/netlify/primitives/compare/vite-plugin-v2.12.6...vite-plugin-v2.12.7) (2026-05-29)
 
 

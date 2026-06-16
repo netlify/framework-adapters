@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0](https://github.com/netlify/framework-adapters/compare/nuxt-v0.3.7...nuxt-v0.4.0) (2026-06-16)
+
+
+### Features
+
+* add `@netlify/nuxt` Nuxt module ([#344](https://github.com/netlify/framework-adapters/issues/344)) ([efdf8df](https://github.com/netlify/framework-adapters/commit/efdf8dfb22ffe33b557d2140fd3a3152e23cc95c))
+* Adds W3C trace context propagation to tracer provider ([#471](https://github.com/netlify/framework-adapters/issues/471)) ([afe4656](https://github.com/netlify/framework-adapters/commit/afe4656df5c3bed13ae8c3357205c07efa27c698))
+* unflag database ([#667](https://github.com/netlify/framework-adapters/issues/667)) ([76d95a1](https://github.com/netlify/framework-adapters/commit/76d95a1de14712f858f24d90a430e9b7bca9f3e7))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/zip-it-and-ship-it to ^14.1.3 ([#418](https://github.com/netlify/framework-adapters/issues/418)) ([c08dfc9](https://github.com/netlify/framework-adapters/commit/c08dfc9bed1ea71b9654049a48cfe703b90c59c0))
+* fix dead link in @neltify/nuxt readme ([#355](https://github.com/netlify/framework-adapters/issues/355)) ([913ca49](https://github.com/netlify/framework-adapters/commit/913ca49db32449c9f7dc055a456c766cab520aab))
+* **nuxt-module,vite-plugin:** await fromWebResponse to prevent race condition ([#605](https://github.com/netlify/framework-adapters/issues/605)) ([d9e2f17](https://github.com/netlify/framework-adapters/commit/d9e2f175f1f760f27ece4fa140d50156584475c3))
+* use documented nuxt dev server url to fix nuxt 4 bug ([#356](https://github.com/netlify/framework-adapters/issues/356)) ([2fda8ee](https://github.com/netlify/framework-adapters/commit/2fda8ee0f3a04852c94ada348c6bf3a92ca379e0))
+
 ## [0.3.7](https://github.com/netlify/primitives/compare/nuxt-v0.3.6...nuxt-v0.3.7) (2026-05-29)
 
 
