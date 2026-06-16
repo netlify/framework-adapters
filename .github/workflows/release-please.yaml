@@ -67,8 +67,6 @@ jobs:
           else
             npm publish packages/nuxt-module/ --provenance --access=public
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - if:
           ${{ steps.release.outputs['packages/vite-plugin--release_created'] || github.event_name == 'workflow_dispatch'
           }}
@@ -78,8 +76,6 @@ jobs:
           else
             npm publish packages/vite-plugin/ --provenance --access=public
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - if:
           ${{ steps.release.outputs['packages/vite-plugin-tanstack-start--release_created'] || github.event_name ==
           'workflow_dispatch' }}
@@ -89,5 +85,3 @@ jobs:
           else
             npm publish packages/vite-plugin-tanstack-start/ --provenance --access=public
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
