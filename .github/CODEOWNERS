@@ -1,7 +1,1 @@
-* @netlify/team-runtime
-/packages/dev/**/* @netlify/ecosystem-pod-frameworks
-/packages/dev-utils/**/* @netlify/ecosystem-pod-frameworks
-/packages/identity/**/* @netlify/pod-experience
-/packages/nuxt-module/**/* @netlify/ecosystem-pod-frameworks
-/packages/vite-plugin/**/* @netlify/ecosystem-pod-frameworks
-/‎packages/vite-plugin-tanstack-start/**/* @netlify/ecosystem-pod-frameworks
+* @netlify/ecosystem-pod-frameworks
