@@ -56,8 +56,6 @@ npm run test:watch
 
 [npm-version-src]: https://img.shields.io/npm/v/@netlify/nuxt/latest.svg?style=flat&colorA=020420&colorB=00DC82
 [npm-version-href]: https://npmjs.com/package/@netlify/nuxt
-[npm-downloads-src]: https://img.shields.io/npm/dm/@netlify/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/@netlify/nuxt
 [license-src]: https://img.shields.io/npm/l/@netlify/nuxt.svg?style=flat&colorA=020420&colorB=00DC82
 [license-href]: https://npmjs.com/package/@netlify/nuxt
 [nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js

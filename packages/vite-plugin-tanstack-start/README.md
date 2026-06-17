@@ -29,7 +29,7 @@ The plugin accepts the following options:
       enabled: false,
     },
     // ... All dev options are supported here.
-    // See https://www.npmjs.com/package/@netlify/vite-plugin.
+    // See https://www.npmx.dev/package/@netlify/vite-plugin.
   },
 }
 ```

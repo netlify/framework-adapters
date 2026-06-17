@@ -10,6 +10,8 @@ Vite plugin that emulates Netlify's platform features within your Vite dev serve
 | Edge Functions         | ✅ Yes    |
 | Blobs                  | ✅ Yes    |
 | Cache API              | ✅ Yes    |
+| AI Gateway             | ✅ Yes    |
+| Database               | ✅ Yes    |
 | Redirects and Rewrites | ✅ Yes    |
 | Headers                | ✅ Yes    |
 | Environment Variables  | ✅ Yes    |
@@ -20,7 +22,7 @@ Vite plugin that emulates Netlify's platform features within your Vite dev serve
 ## Installation
 
 ```bash
-npm install @netlify/vite-plugin
+npm install -D @netlify/vite-plugin
 ```
 
 ## Configuration options
