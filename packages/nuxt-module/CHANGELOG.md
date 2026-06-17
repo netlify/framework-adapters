@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.8](https://github.com/netlify/framework-adapters/compare/nuxt-v0.3.7...nuxt-v0.3.8) (2026-06-17)
+
+
+### Bug Fixes
+
+* trigger new releases with Trusted Publishing ([#7](https://github.com/netlify/framework-adapters/issues/7)) ([3052ecb](https://github.com/netlify/framework-adapters/commit/3052ecb75268a4eac710792a6dfd24a13d9af67c))
+
 ## [0.3.7](https://github.com/netlify/primitives/compare/nuxt-v0.3.6...nuxt-v0.3.7) (2026-05-29)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.8](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.7...vite-plugin-v2.12.8) (2026-06-17)
+
+
+### Bug Fixes
+
+* trigger new releases with Trusted Publishing ([#7](https://github.com/netlify/framework-adapters/issues/7)) ([3052ecb](https://github.com/netlify/framework-adapters/commit/3052ecb75268a4eac710792a6dfd24a13d9af67c))
+
 ## [2.12.7](https://github.com/netlify/primitives/compare/vite-plugin-v2.12.6...vite-plugin-v2.12.7) (2026-05-29)
 
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.16](https://github.com/netlify/framework-adapters/compare/vite-plugin-tanstack-start-v1.3.15...vite-plugin-tanstack-start-v1.3.16) (2026-06-17)
+
+
+### Bug Fixes
+
+* trigger new releases with Trusted Publishing ([#7](https://github.com/netlify/framework-adapters/issues/7)) ([3052ecb](https://github.com/netlify/framework-adapters/commit/3052ecb75268a4eac710792a6dfd24a13d9af67c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @netlify/vite-plugin bumped from ^2.12.7 to ^2.12.8
+
 ## [1.3.15](https://github.com/netlify/primitives/compare/vite-plugin-tanstack-start-v1.3.14...vite-plugin-tanstack-start-v1.3.15) (2026-05-29)
 
 
