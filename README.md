@@ -1,6 +1,6 @@
 # Netlify Framework Adapters
 
-Implementation of different Netlify framework adapters.
+Netlify framework adapters for Nuxt, Vite, and TanStack Start
 
 ## Installation
 
