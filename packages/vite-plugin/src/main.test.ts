@@ -584,7 +584,7 @@ defined on your team and site and much more. Run npx netlify init to get started
           await expect(
             getImageSize(page.locator('#not-allowed-remote-image')),
             'Not allowed remote image should not load',
-          ).rejects.toThrowError(`Image was not loaded`)
+          ).rejects.toThrow(`Image was not loaded`)
 
           await server.close()
           await fixture.destroy()
