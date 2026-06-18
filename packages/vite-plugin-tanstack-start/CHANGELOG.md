@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.17](https://github.com/netlify/framework-adapters/compare/vite-plugin-tanstack-start-v1.3.16...vite-plugin-tanstack-start-v1.3.17) (2026-06-18)
+
+
+### Bug Fixes
+
+* **deps:** bulk upgrade deps and dev deps ([#15](https://github.com/netlify/framework-adapters/issues/15)) ([f88c812](https://github.com/netlify/framework-adapters/commit/f88c8121b8b75cd5bb3bed8a35818213716ba198))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @netlify/vite-plugin bumped from 2.12.8 to 2.12.9
+
 ## [1.3.16](https://github.com/netlify/framework-adapters/compare/vite-plugin-tanstack-start-v1.3.15...vite-plugin-tanstack-start-v1.3.16) (2026-06-17)
 
 
