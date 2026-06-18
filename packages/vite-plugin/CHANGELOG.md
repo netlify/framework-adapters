@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.9](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.8...vite-plugin-v2.12.9) (2026-06-18)
+
+
+### Bug Fixes
+
+* **deps:** bulk upgrade deps and dev deps ([#15](https://github.com/netlify/framework-adapters/issues/15)) ([f88c812](https://github.com/netlify/framework-adapters/commit/f88c8121b8b75cd5bb3bed8a35818213716ba198))
+
 ## [2.12.8](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.7...vite-plugin-v2.12.8) (2026-06-17)
 
 

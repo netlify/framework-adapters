@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.9](https://github.com/netlify/framework-adapters/compare/nuxt-v0.3.8...nuxt-v0.3.9) (2026-06-18)
+
+
+### Bug Fixes
+
+* **deps:** bulk upgrade deps and dev deps ([#15](https://github.com/netlify/framework-adapters/issues/15)) ([f88c812](https://github.com/netlify/framework-adapters/commit/f88c8121b8b75cd5bb3bed8a35818213716ba198))
+
 ## [0.3.8](https://github.com/netlify/framework-adapters/compare/nuxt-v0.3.7...nuxt-v0.3.8) (2026-06-17)
 
 
