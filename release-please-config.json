@@ -7,6 +7,10 @@
   "separate-pull-requests": false,
   "packages": {
     "packages/nuxt-module": {},
+    "packages/skew-protection-webpack-plugin": {
+      "prerelease": true,
+      "prerelease-type": "beta"
+    },
     "packages/vite-plugin": {},
     "packages/vite-plugin-tanstack-start": {
       "exclude-paths": ["packages/vite-plugin-tanstack-start/test"]
