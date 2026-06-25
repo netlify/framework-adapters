@@ -20,7 +20,8 @@ When `NETLIFY_SKEW_PROTECTION_TOKEN` is absent or `"0"` (local dev, CLI deploys,
 complete no-op.
 
 > **Note:** the query param is intentionally placed on **asset URLs only**, never a cookie. A cookie would ride every
-> same-origin request and pin your API/XHR traffic to a stale deploy. The default `patterns` scope rerouting to JS/CSS.
+> same-origin request and pin your API/XHR traffic to a stale deploy. The default `patterns` limit rerouting to JS and
+> CSS files.
 
 ## Usage
 

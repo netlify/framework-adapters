@@ -150,7 +150,9 @@ export class NetlifySkewProtectionPlugin {
     let HtmlWebpackPlugin: { getHooks?: (c: Compilation) => HtmlHooks | undefined }
     try {
       // Resolved from the consumer's dependency tree.
-      HtmlWebpackPlugin = requirePeer('html-webpack-plugin')
+      HtmlWebpackPlugin = requirePeer('html-webpack-plugin') as {
+        getHooks?: (c: Compilation) => HtmlHooks | undefined
+      }
     } catch {
       return
     }

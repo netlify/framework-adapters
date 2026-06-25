@@ -40,8 +40,14 @@ const compile = (plugin: NetlifySkewProtectionPlugin): Promise<void> => {
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
       compiler.close(() => {})
-      if (err) return reject(err)
-      if (stats?.hasErrors()) return reject(new Error(stats.toString()))
+      if (err) {
+        reject(err)
+        return
+      }
+      if (stats?.hasErrors()) {
+        reject(new Error(stats.toString()))
+        return
+      }
       resolve()
     })
   })
