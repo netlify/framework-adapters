@@ -4,6 +4,7 @@
   "type": "module",
   "workspaces": [
     "packages/nuxt-module",
+    "packages/skew-protection-webpack-plugin",
     "packages/vite-plugin",
     "packages/vite-plugin-tanstack-start"
   ],

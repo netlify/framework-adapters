@@ -1,5 +1,6 @@
 {
   "packages/nuxt-module": "0.3.8",
+  "packages/skew-protection-webpack-plugin": "0.1.0",
   "packages/vite-plugin": "2.12.8",
   "packages/vite-plugin-tanstack-start": "1.3.16"
 }
