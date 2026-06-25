@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { isAbsolute, join } from 'node:path'
+import { dirname, isAbsolute, join } from 'node:path'
 
 import webpack from 'webpack'
 import type { Compilation, Compiler } from 'webpack'
@@ -14,6 +14,14 @@ const { RuntimeGlobals } = webpack
 const requirePeer = createRequire(typeof __filename === 'string' ? __filename : import.meta.url)
 
 const PLUGIN = 'NetlifySkewProtectionPlugin'
+
+// Frameworks API location for the skew protection manifest, relative to the
+// build base directory. This is a stable, documented public contract
+// (https://docs.netlify.com/build/frameworks/frameworks-api/), and matches the
+// `FRAMEWORKS_API_SKEW_PROTECTION_PATH` constant in `@netlify/build`. That
+// constant is internal to the build orchestrator and not importable, so we
+// mirror the literal here rather than guess at it.
+const MANIFEST_PATH = ['.netlify', 'v1', 'skew-protection.json']
 
 export interface SkewProtectionPluginOptions {
   /**
@@ -38,8 +46,10 @@ export interface SkewProtectionPluginOptions {
   /**
    * Directory Netlify treats as the build base (where `.netlify/v1/` is
    * scanned). The manifest is written to
-   * `<baseDir>/.netlify/v1/skew-protection.json`. Default: the webpack compiler
-   * context. In a monorepo set this to the site's configured base directory.
+   * `<baseDir>/.netlify/v1/skew-protection.json`. Defaults to `process.cwd()`,
+   * which during a Netlify build is the base directory the platform resolves
+   * `.netlify/v1` against. Override it only if your build command runs from a
+   * different directory than the configured base.
    */
   baseDir?: string
 }
@@ -89,16 +99,20 @@ export class NetlifySkewProtectionPlugin {
     // (3): emit the Frameworks API manifest once assets are written. This is
     // required for the feature to work: without it the edge has no reason to
     // reroute on the query param we stamp onto asset URLs.
-    const baseDir = this.baseDir ?? compiler.options.context ?? process.cwd()
+    // Default to `process.cwd()`, which during a Netlify build is the base
+    // directory the platform resolves `.netlify/v1` against. We deliberately do
+    // not use `compiler.options.context`: webpack's context is often a
+    // subdirectory (e.g. `<root>/src`), which would put the manifest somewhere
+    // the platform never scans.
+    const baseDir = this.baseDir ?? process.cwd()
     compiler.hooks.afterEmit.tapPromise(PLUGIN, async () => {
       const root = isAbsolute(baseDir) ? baseDir : join(process.cwd(), baseDir)
-      const dir = join(root, '.netlify', 'v1')
-      const file = join(dir, 'skew-protection.json')
+      const file = join(root, ...MANIFEST_PATH)
       const manifest = {
         patterns: this.patterns,
         sources: [{ type: 'query', name: this.paramName }],
       }
-      await mkdir(dir, { recursive: true })
+      await mkdir(dirname(file), { recursive: true })
       await writeFile(file, `${JSON.stringify(manifest, null, 2)}\n`)
       logger.log(`Wrote ${file}`)
     })
