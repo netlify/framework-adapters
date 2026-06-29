@@ -1,0 +1,11 @@
+{
+  "name": "missing-angular-deps",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "echo hello!"
+  },
+  "private": true,
+  "dependencies": {
+    "@netlify/angular-runtime": "file:../../../"
+  }
+}

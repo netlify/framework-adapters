@@ -1,0 +1,111 @@
+{
+  "name": "@netlify/angular-runtime",
+  "version": "4.0.0",
+  "description": "Netlify Angular Runtime - Run Angular seamlessly on Netlify.",
+  "main": "src/index.js",
+  "files": [
+    "src/**/*.js",
+    "src/**/*.json",
+    "src/**/*.d.ts",
+    "app-engine.js",
+    "app-engine.d.ts",
+    "common-engine.js",
+    "common-engine.d.ts",
+    "manifest.yml"
+  ],
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "default": "./src/index.js"
+    },
+    "./app-engine": {
+      "types": "./src/app-engine.d.ts",
+      "default": "./src/app-engine.js"
+    },
+    "./app-engine.js": {
+      "types": "./src/app-engine.d.ts",
+      "default": "./src/app-engine.js"
+    },
+    "./common-engine": {
+      "types": "./src/common-engine.d.ts",
+      "default": "./src/common-engine.js"
+    },
+    "./common-engine.js": {
+      "types": "./src/common-engine.d.ts",
+      "default": "./src/common-engine.js"
+    }
+  },
+  "scripts": {
+    "format": "run-s format:check-fix:*",
+    "format:ci": "run-s format:check:*",
+    "format:check-fix:lint": "run-e format:check:lint format:fix:lint",
+    "format:check:lint": "eslint \"{src,scripts,tests,.github}/**/*.{js,md,html}\"",
+    "format:fix:lint": "eslint --fix \"{src,scripts,tests,.github}/**/*.{js,md,html}\"",
+    "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
+    "format:check:prettier": "prettier . --check --log-level warn",
+    "format:fix:prettier": "prettier . --write --log-level warn",
+    "prepublishOnly": "npm ci && npm test",
+    "pretest:demo": "cd demo && npm ci && netlify build --cwd . --offline",
+    "pretest:fixtures": "run-s pretest:fixtures:*",
+    "pretest:fixtures:non-angular-project": "cd tests/fixtures/non-angular-project && npm ci",
+    "pretest:fixtures:missing-angular-deps": "cd tests/fixtures/missing-angular-deps && npm ci",
+    "pretest:fixtures:application-builder": "cd tests/fixtures/application-builder && npm ci",
+    "pretest:fixtures:browser-builder": "cd tests/fixtures/browser-builder && npm ci",
+    "pretest:fixtures:prerender-false": "cd tests/fixtures/prerender-false && npm ci",
+    "pretest:fixtures:angular-17": "cd tests/fixtures/angular-17 && npm ci",
+    "pretest:fixtures:angular-19-common-engine": "cd tests/fixtures/angular-19-common-engine && npm ci",
+    "pretest:fixtures:angular-19-app-engine": "cd tests/fixtures/angular-19-app-engine && npm ci",
+    "pretest:fixtures:angular-19-app-engine-node-module-resolution": "cd tests/fixtures/angular-19-app-engine-node-module-resolution && npm ci",
+    "pretest:fixtures:angular-19-prerender-false": "cd tests/fixtures/angular-19-prerender-false && npm ci",
+    "pretest:fixtures:angular-20": "cd tests/fixtures/angular-20 && npm ci",
+    "pretest:fixtures:angular-20-zoneless": "cd tests/fixtures/angular-20-zoneless && npm ci",
+    "pretest:fixtures:angular-21": "cd tests/fixtures/angular-21 && npm ci",
+    "pretest:fixtures:angular-22": "cd tests/fixtures/angular-22 && npm ci",
+    "pretest:fixtures:nx-angular-19-common-engine": "cd tests/fixtures/nx-angular-19-common-engine && npm ci",
+    "pretest:fixtures:nx-angular-19-app-engine": "cd tests/fixtures/nx-angular-19-app-engine && npm ci",
+    "pretest": "run-s pretest:*",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netlify/angular-runtime.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/netlify/angular-runtime/issues"
+  },
+  "homepage": "https://github.com/netlify/angular-runtime#readme",
+  "keywords": [
+    "netlify-plugin",
+    "netlify",
+    "angular"
+  ],
+  "engines": {
+    "node": "^22.22.0 || ^24.13.1 || >=26.0.0"
+  },
+  "devDependencies": {
+    "@netlify/build": "^36.0.1",
+    "@netlify/eslint-config-node": "^7.0.1",
+    "@opentelemetry/api": "~1.8.0",
+    "@types/node": "^24.0.0",
+    "eslint-plugin-unicorn": "^49.0.0",
+    "husky": "^9.1.7",
+    "netlify-cli": "^26.1.0",
+    "npm-run-all2": "^8.0.4",
+    "prettier": "^3.8.3"
+  },
+  "dependencies": {
+    "@netlify/edge-functions": "^3.0.8",
+    "semver": "^7.8.0"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ],
+    "verbose": true,
+    "testTimeout": 60000
+  },
+  "type": "module"
+}
