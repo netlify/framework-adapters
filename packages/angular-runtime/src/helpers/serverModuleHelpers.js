@@ -1,4 +1,3 @@
- 
 import { existsSync } from 'node:fs'
 import { readFile, writeFile, rename, rm } from 'node:fs/promises'
 import { parse, join } from 'node:path'
@@ -10,7 +9,6 @@ import { getAngularRuntimeVersion } from './getPackageVersion.js'
 import { getEngineBasedOnKnownSignatures } from './serverTsSignature.js'
 import { getProject } from './setUpEdgeFunction.js'
 
- 
 const NetlifyServerTsCommonEngine = /* typescript */ `import { CommonEngine } from '@angular/ssr/node'
 import { render } from '@netlify/angular-runtime/common-engine.js'
 
@@ -27,7 +25,7 @@ export async function netlifyCommonEngineHandler(request: Request, context: any)
   return await render(commonEngine)
 }
 `
- 
+
 const NetlifyServerTsAppEngineCommonContent = /* typescript */ `export async function netlifyAppEngineHandler(request: Request): Promise<Response> {
   const context = getContext()
 
@@ -48,7 +46,6 @@ const NetlifyServerTsAppEngineCommonContent = /* typescript */ `export async fun
 export const reqHandler = createRequestHandler(netlifyAppEngineHandler)
 `
 
- 
 const NetlifyServerTsAppEngine21Dot2Dot9 = /* typescript */ `import { AngularAppEngine, createRequestHandler } from '@angular/ssr'
 import { getAllowedHosts, getContext, getTrustProxyHeaders } from '@netlify/angular-runtime/app-engine.js'
 
@@ -59,7 +56,6 @@ const angularAppEngine = new AngularAppEngine({
 
 ${NetlifyServerTsAppEngineCommonContent}`
 
- 
 const NetlifyServerTsAppEngine21Dot1Dot5 = /* typescript */ `import { AngularAppEngine, createRequestHandler } from '@angular/ssr'
 import { getAllowedHosts, getContext } from '@netlify/angular-runtime/app-engine.js'
 
@@ -69,7 +65,6 @@ const angularAppEngine = new AngularAppEngine({
 
 ${NetlifyServerTsAppEngineCommonContent}`
 
- 
 const NetlifyServerTsAppEngine21Dot0 = /* typescript */ `import { AngularAppEngine, createRequestHandler } from '@angular/ssr'
 import { getContext } from '@netlify/angular-runtime/app-engine.js'
 
@@ -257,4 +252,3 @@ export async function revertServerTsFix() {
     needSwapping = false
   }
 }
- 

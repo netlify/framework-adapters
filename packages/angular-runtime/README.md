@@ -35,11 +35,15 @@ There's no further configuration needed from Netlify users.
 
 ### For Angular 19+
 
-If you are using Server-Side Rendering you will need to install Angular Runtime in your Angular project to be able to import required utilities to successfully deploy request handler to Netlify. See [Manual Installation](#manual-installation) for installations details. See [Request handling](#request-handling) for more information about request handler.
+If you are using Server-Side Rendering you will need to install Angular Runtime in your Angular project to be able to
+import required utilities to successfully deploy request handler to Netlify. See
+[Manual Installation](#manual-installation) for installations details. See [Request handling](#request-handling) for
+more information about request handler.
 
 ### Manual Installation
 
-If you need to pin this plugin to a specific version or if you are using Server-Side Rendering with Angular 19+, you will need to install the plugin manually.
+If you need to pin this plugin to a specific version or if you are using Server-Side Rendering with Angular 19+, you
+will need to install the plugin manually.
 
 Install it via your package manager:
 
@@ -51,13 +55,13 @@ yarn add -D @netlify/angular-runtime
 
 ## Accessing `Request` and `Context` during Server-Side Rendering
 
-During server-side rendering (SSR), you can access the incoming `Request` object and the Netlify-specific `Context` object via providers:
+During server-side rendering (SSR), you can access the incoming `Request` object and the Netlify-specific `Context`
+object via providers:
 
 ```ts
-import type { Context } from "@netlify/edge-functions"
+import type { Context } from '@netlify/edge-functions'
 
 export class FooComponent {
-
   constructor(
     // ...
     @Inject('netlify.request') @Optional() request?: Request,
@@ -66,11 +70,11 @@ export class FooComponent {
     console.log(`Rendering Foo for path ${request?.url} from location ${context?.geo?.city}`)
     // ...
   }
-
 }
 ```
 
-Keep in mind that these will not be available on the client-side or during [prerendering](https://angular.dev/guide/prerendering#prerendering-parameterized-routes).
+Keep in mind that these will not be available on the client-side or during
+[prerendering](https://angular.dev/guide/prerendering#prerendering-parameterized-routes).
 
 To test this in local development, run your Angular project using `netlify serve`:
 
@@ -80,7 +84,8 @@ netlify serve
 
 ### App Engine usage
 
-With App Engine accessing `Request` and `Context` objects is streamlined. Instead of custom Netlify prefixed providers, you should use the standardized injection tokens for those provided by `@angular/core` instead:
+With App Engine accessing `Request` and `Context` objects is streamlined. Instead of custom Netlify prefixed providers,
+you should use the standardized injection tokens for those provided by `@angular/core` instead:
 
 ```diff
 +import { REQUEST, REQUEST_CONTEXT } from '@angular/core'
@@ -106,13 +111,18 @@ Note that App Engine in Angular 19 is in Developer Preview and requires explicit
 
 ## Request handling
 
-Starting with Angular@19. The build plugin makes use of the `server.ts` file to handle requests. The default Angular scaffolding generates incompatible code for Netlify so the build plugin will swap it for compatible `server.ts` file automatically if it detects default version being used.
+Starting with Angular@19. The build plugin makes use of the `server.ts` file to handle requests. The default Angular
+scaffolding generates incompatible code for Netlify so the build plugin will swap it for compatible `server.ts` file
+automatically if it detects default version being used.
 
-Make sure you have `@netlify/angular-runtime` version 4.0.0 or later installed in your project. Netlify compatible `server.ts` file imports utilities from this package and Angular Compiler need to be able to resolve it and it can only do that if it's installed in your project and not when it's auto-installed by Netlify.
+Make sure you have `@netlify/angular-runtime` version 4.0.0 or later installed in your project. Netlify compatible
+`server.ts` file imports utilities from this package and Angular Compiler need to be able to resolve it and it can only
+do that if it's installed in your project and not when it's auto-installed by Netlify.
 
 ### Customizing request handling
 
-If you need to customize the request handling, you can do so by copying one of code snippets below to your `server.ts` file.
+If you need to customize the request handling, you can do so by copying one of code snippets below to your `server.ts`
+file.
 
 If you are using `@angular/ssr@21.2.9+` with AppEngine:
 
@@ -145,7 +155,9 @@ export async function netlifyAppEngineHandler(request: Request): Promise<Respons
 export const reqHandler = createRequestHandler(netlifyAppEngineHandler)
 ```
 
-> **Note:** The snippet above requires `@angular/ssr@21.2.9+`. We strongly recommend upgrading to this version. If you're on an older release:
+> **Note:** The snippet above requires `@angular/ssr@21.2.9+`. We strongly recommend upgrading to this version. If
+> you're on an older release:
+>
 > - **v19, v20, v21 (before 21.1.5):** omit both `getAllowedHosts` and `getTrustProxyHeaders`.
 > - **v21.1.5–21.2.8:** include `getAllowedHosts`, but omit `getTrustProxyHeaders`.
 > - **v21.2.9+:** include both `getAllowedHosts` and `getTrustProxyHeaders` (as shown above).
@@ -172,29 +184,35 @@ export async function netlifyCommonEngineHandler(request: Request, context: any)
 
 ### Caching responses from SSR
 
-The Angular Runtime's edge functions are automatically configured with `cache: "manual"`.
-This means Netlify will honor Cache Control headers from your SSR responses.
+The Angular Runtime's edge functions are automatically configured with `cache: "manual"`. This means Netlify will honor
+Cache Control headers from your SSR responses.
 
-You can use [Angular's server routes](https://angular.dev/guide/ssr#setting-headers-and-status-codes) to control headers in your responses or [customize request handling manually](#customizing-request-handling).
+You can use [Angular's server routes](https://angular.dev/guide/ssr#setting-headers-and-status-codes) to control headers
+in your responses or [customize request handling manually](#customizing-request-handling).
 
 To learn more read Netlify's docs on:
+
 - [Caching] (https://docs.netlify.com/platform/caching/),
 - [When to use caching](https://docs.netlify.com/edge-functions/optional-configuration/#when-to-use-caching).
 
 ### Limitations
 
-The [`server.ts` file](https://angular.dev/guide/ssr#configure-server-side-rendering) that's part of the Angular scaffolding is meant for deploying to a VM, and is not compatible with this Netlify build plugin for Angular@17 and Angular@18. If you applied changes to that file, you'll need to replicate them in an Edge Function. See (#135)[https://github.com/netlify/angular-runtime/issues/135] for an example.
+The [`server.ts` file](https://angular.dev/guide/ssr#configure-server-side-rendering) that's part of the Angular
+scaffolding is meant for deploying to a VM, and is not compatible with this Netlify build plugin for Angular@17 and
+Angular@18. If you applied changes to that file, you'll need to replicate them in an Edge Function. See
+(#135)[https://github.com/netlify/angular-runtime/issues/135] for an example.
 
 ## CLI Usage
 
 ### Requirements
 
-To use the Angular Runtime while building and deploying with the CLI, you need to have `netlify-cli v26.0.0` installed (or a later version). To deploy the site via CLI, please use `netlify deploy`. Using `netlify deploy` with the `--no-build` flag is not supported.
+To use the Angular Runtime while building and deploying with the CLI, you need to have `netlify-cli v26.0.0` installed
+(or a later version). To deploy the site via CLI, please use `netlify deploy`. Using `netlify deploy` with the
+`--no-build` flag is not supported.
 
 ## Getting Help
 
-We love to hear from you so if you have questions, comments or find a bug in the
-project, let us know! You can either:
+We love to hear from you so if you have questions, comments or find a bug in the project, let us know! You can either:
 
 - Open an issue on this repository
 - Tweet at us! We're [@Netlify on Twitter](https://twitter.com/Netlify)
@@ -202,10 +220,8 @@ project, let us know! You can either:
 
 ## Contributing
 
-We welcome contributions ❤️ - see the [CONTRIBUTING.md](CONTRIBUTING.md) file
-for details.
+We welcome contributions ❤️ - see the [CONTRIBUTING.md](CONTRIBUTING.md) file for details.
 
 ## License
 
-This project is licensed under the MIT License - see the
-[LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
