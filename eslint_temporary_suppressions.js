@@ -25,4 +25,10 @@ export default [
       '@typescript-eslint/no-floating-promises': 'off',
     },
   },
+  {
+    files: ['packages/angular-runtime/demo.test.mjs', 'packages/angular-runtime/tests/integration.test.js'],
+    rules: {
+      'vitest/no-import-node-test': 'off',
+    },
+  },
 ]

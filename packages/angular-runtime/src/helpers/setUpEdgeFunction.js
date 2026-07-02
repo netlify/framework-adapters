@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+ 
 import { Buffer } from 'node:buffer'
 import { readdirSync, existsSync } from 'node:fs'
 import { writeFile, mkdir, readFile } from 'node:fs/promises'
@@ -80,7 +80,7 @@ export function getBuildInformation(angularJson, failBuild, workspaceType) {
   return { outputPath, isApplicationBuilder }
 }
 
-// eslint-disable-next-line max-lines-per-function
+ 
 export async function setUpEdgeFunction({ outputPath, constants, failBuild, usedEngine }) {
   const serverDistRoot = join(outputPath, 'server')
   if (!existsSync(serverDistRoot)) {
@@ -131,7 +131,7 @@ export async function setUpEdgeFunction({ outputPath, constants, failBuild, used
   let ssrFunctionContent = ''
 
   if (!usedEngine) {
-    // eslint-disable-next-line no-inline-comments
+     
     ssrFunctionContent = /* javascript */ `
     import { Buffer } from "node:buffer";
     import { renderApplication } from "${toPosix(relative(edgeFunctionDir, serverDistRoot))}/render-utils.server.mjs";
@@ -161,7 +161,7 @@ export async function setUpEdgeFunction({ outputPath, constants, failBuild, used
       cssAssetsManifest[`${relative(outputBrowserDir, cssFile)}`] = content.toString('base64')
     }
 
-    // eslint-disable-next-line no-inline-comments
+     
     ssrFunctionContent = /* javascript */ `
     import { AsyncLocalStorage } from "node:async_hooks";
     import { Buffer } from "node:buffer";
@@ -233,7 +233,7 @@ export async function setUpEdgeFunction({ outputPath, constants, failBuild, used
     }
     `
   } else if (usedEngine === 'AppEngine') {
-    // eslint-disable-next-line no-inline-comments
+     
     ssrFunctionContent = /* javascript */ `
     import { netlifyAppEngineHandler } from "${toPosix(relative(edgeFunctionDir, serverDistRoot))}/server.mjs";
     import "./fixup-event.mjs";
@@ -246,7 +246,7 @@ export async function setUpEdgeFunction({ outputPath, constants, failBuild, used
     return failBuild(`"${usedEngine}" is currently not a supported.`)
   }
 
-  // eslint-disable-next-line no-inline-comments
+   
   const ssrFunction = /* javascript */ `
   import "./polyfill.mjs";
   ${ssrFunctionContent}
@@ -263,4 +263,4 @@ export async function setUpEdgeFunction({ outputPath, constants, failBuild, used
   await writeFile(join(edgeFunctionDir, 'fixup-event.mjs'), fixupEvent)
   await writeFile(join(edgeFunctionDir, 'angular-ssr.mjs'), ssrFunction)
 }
-/* eslint-enable max-lines */
+ 

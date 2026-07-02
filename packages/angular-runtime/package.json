@@ -70,13 +70,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netlify/angular-runtime.git"
+    "url": "https://github.com/netlify/framework-adapters.git",
+    "directory": "packages/angular-runtime"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/netlify/angular-runtime/issues"
+    "url": "https://github.com/netlify/framework-adapters/issues"
   },
-  "homepage": "https://github.com/netlify/angular-runtime#readme",
   "keywords": [
     "netlify-plugin",
     "netlify",

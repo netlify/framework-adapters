@@ -26,6 +26,14 @@ export default tseslint.config(
     ignores: ['**/fixtures/*'],
   },
   {
+    // Generated snapshot files used by a signature-diffing tool; not meant to be linted.
+    ignores: ['packages/angular-runtime/tools/known-server-ts-signatures'],
+  },
+  {
+    // Standalone Angular demo app with its own dependencies/toolchain; not part of the monorepo's lint surface.
+    ignores: ['packages/angular-runtime/demo/'],
+  },
+  {
     // Uses its own eslint setup
     ignores: ['packages/nuxt-module/'],
   },
@@ -137,6 +145,21 @@ export default tseslint.config(
     files: ['**/tsup.config.ts'],
     rules: {
       'n/no-unsupported-features/node-builtins': 'off',
+    },
+  },
+  {
+    // `.cjs` files are always loaded as CommonJS by Node, so `require`/`module` can't be replaced with
+    // `import`/`export` here.
+    files: ['packages/angular-runtime/.eslintrc.cjs', 'packages/angular-runtime/.prettierrc.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        require: 'readonly',
+        module: 'writable',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 

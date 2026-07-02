@@ -11,7 +11,9 @@ export default function ensureNoCompetingPlugin(root, failBuild) {
   try {
     const require = createRequire(import.meta.url)
     packagePath = require.resolve('@netlify/plugin-angular-universal', { paths: [root] })
-  } catch {}
+  } catch {
+    // no-op
+  }
 
   if (packagePath) {
     return failBuild(

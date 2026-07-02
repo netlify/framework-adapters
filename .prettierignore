@@ -3,3 +3,5 @@ dist
 coverage
 CHANGELOG.md
 **/fixtures/*
+packages/angular-runtime/tools/known-server-ts-signatures
+packages/angular-runtime/demo

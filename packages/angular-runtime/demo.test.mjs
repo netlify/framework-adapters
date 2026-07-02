@@ -10,6 +10,7 @@ test(
     skip: !satisfies(versions.node, '>=20.11'),
   },
   async () => {
+    // eslint-disable-next-line n/no-missing-import -- build output, only present after the demo is built
     const { config } = await import('./demo/.netlify/edge-functions/angular-ssr/angular-ssr.mjs')
 
     const excludedPathsWithMaskedHashes = config.excludedPath.map((path) => path.replace(/-[A-Z\d]{8}\./, '-HASHHASH.'))
