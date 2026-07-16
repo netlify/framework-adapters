@@ -55,6 +55,15 @@ jobs:
 
       # Publishing packages in topological order, as defined in `package.json`.
       - if:
+          ${{ steps.release.outputs['packages/angular-runtime--release_created'] || github.event_name ==
+          'workflow_dispatch' }}
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            npm publish packages/angular-runtime/ --provenance --access=public || true
+          else
+            npm publish packages/angular-runtime/ --provenance --access=public
+          fi
+      - if:
           ${{ steps.release.outputs['packages/nuxt-module--release_created'] || github.event_name == 'workflow_dispatch'
           }}
         run: |

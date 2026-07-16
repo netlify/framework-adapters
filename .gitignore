@@ -7,3 +7,6 @@ coverage
 .cache
 .vscode
 .fleet
+.idea
+.angular
+.nx

@@ -39,15 +39,6 @@
   },
   "scripts": {
     "build": "",
-    "format": "run-s format:check-fix:*",
-    "format:ci": "run-s format:check:*",
-    "format:check-fix:lint": "run-e format:check:lint format:fix:lint",
-    "format:check:lint": "eslint \"{src,scripts,tests,.github}/**/*.{js,md,html}\"",
-    "format:fix:lint": "eslint --fix \"{src,scripts,tests,.github}/**/*.{js,md,html}\"",
-    "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
-    "format:check:prettier": "prettier . --check --log-level warn",
-    "format:fix:prettier": "prettier . --write --log-level warn",
-    "prepublishOnly": "npm ci && npm test",
     "pretest:demo": "cd demo && npm ci && netlify build --cwd . --offline",
     "pretest:fixtures": "run-s pretest:fixtures:*",
     "pretest:fixtures:non-angular-project": "cd tests/fixtures/non-angular-project && npm ci",
@@ -67,6 +58,7 @@
     "pretest:fixtures:nx-angular-19-common-engine": "cd tests/fixtures/nx-angular-19-common-engine && npm ci",
     "pretest:fixtures:nx-angular-19-app-engine": "cd tests/fixtures/nx-angular-19-app-engine && npm ci",
     "pretest": "run-s pretest:*",
+    "publint": "npx -y publint --strict",
     "test": "node --test"
   },
   "repository": {
@@ -88,25 +80,14 @@
   },
   "devDependencies": {
     "@netlify/build": "^36.0.1",
-    "@netlify/eslint-config-node": "^7.0.1",
     "@opentelemetry/api": "~1.8.0",
     "@types/node": "^24.0.0",
-    "eslint-plugin-unicorn": "^49.0.0",
-    "husky": "^9.1.7",
     "netlify-cli": "^26.1.0",
-    "npm-run-all2": "^8.0.4",
-    "prettier": "^3.8.3"
+    "npm-run-all2": "^8.0.4"
   },
   "dependencies": {
     "@netlify/edge-functions": "^3.0.8",
     "semver": "^7.8.0"
-  },
-  "jest": {
-    "testMatch": [
-      "**/test/**/*.test.js"
-    ],
-    "verbose": true,
-    "testTimeout": 60000
   },
   "type": "module"
 }

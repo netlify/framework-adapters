@@ -6,6 +6,9 @@
   "release-type": "node",
   "separate-pull-requests": false,
   "packages": {
+    "packages/angular-runtime": {
+      "exclude-paths": ["packages/angular-runtime/demo", "packages/angular-runtime/tests/fixtures"]
+    },
     "packages/nuxt-module": {},
     "packages/vite-plugin": {},
     "packages/vite-plugin-tanstack-start": {

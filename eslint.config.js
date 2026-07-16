@@ -16,7 +16,16 @@ const __dirname = path.dirname(__filename)
 
 const packagesPath = path.join(__dirname, 'packages')
 const packages = await fs.readdir(packagesPath)
-const packageIgnores = packages.map((name) => includeIgnoreFile(path.resolve(packagesPath, name, '.gitignore')))
+const packageIgnores = await Promise.all(
+  packages.map(async (name) => {
+    const gitignorePath = path.resolve(packagesPath, name, '.gitignore')
+    const exists = await fs.access(gitignorePath).then(
+      () => true,
+      () => false,
+    )
+    return exists ? includeIgnoreFile(gitignorePath) : {}
+  }),
+)
 
 export default tseslint.config(
   // Global rules and configuration
@@ -147,22 +156,6 @@ export default tseslint.config(
       'n/no-unsupported-features/node-builtins': 'off',
     },
   },
-  {
-    // `.cjs` files are always loaded as CommonJS by Node, so `require`/`module` can't be replaced with
-    // `import`/`export` here.
-    files: ['packages/angular-runtime/.eslintrc.cjs', 'packages/angular-runtime/.prettierrc.cjs'],
-    languageOptions: {
-      sourceType: 'commonjs',
-      globals: {
-        require: 'readonly',
-        module: 'writable',
-      },
-    },
-    rules: {
-      '@typescript-eslint/no-require-imports': 'off',
-    },
-  },
-
   ...temporarySuppressions,
 
   // Must be last
