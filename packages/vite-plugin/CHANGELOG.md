@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.12.9](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.8...vite-plugin-v2.12.9) (2026-07-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* empty commit to trigger major release (netlify/angular-runtime#380)
+
+### Features
+
+* empty commit to trigger major release (netlify/angular-runtime[#380](https://github.com/netlify/framework-adapters/issues/380)) ([53afabd](https://github.com/netlify/framework-adapters/commit/53afabd71839d933700c136a1b270890b7d153a4))
+
+
+### Bug Fixes
+
+* **deps:** bulk upgrade deps and dev deps ([#15](https://github.com/netlify/framework-adapters/issues/15)) ([f88c812](https://github.com/netlify/framework-adapters/commit/f88c8121b8b75cd5bb3bed8a35818213716ba198))
+* remove onPreDev (netlify/angular-runtime[#108](https://github.com/netlify/framework-adapters/issues/108)) ([4de7832](https://github.com/netlify/framework-adapters/commit/4de7832d34737a5dfc006e939261956b29086772))
+
 ## [2.12.8](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.7...vite-plugin-v2.12.8) (2026-06-17)
 
 
