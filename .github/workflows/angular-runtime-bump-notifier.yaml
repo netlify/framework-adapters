@@ -6,6 +6,8 @@ name: Notify on Angular bump failures
 on:
   pull_request:
     types: [opened, synchronize, labeled, unlabeled]
+    paths:
+      - 'packages/angular-runtime/**'
 jobs:
   waitForWorkflows:
     name: Wait for workflows

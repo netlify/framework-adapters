@@ -1,8 +1,10 @@
-name: SSR Tests
+name: SSR Tests @netlify/angular-runtime
 on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'packages/angular-runtime/**'
 
 permissions:
   contents: read
@@ -33,6 +35,6 @@ jobs:
         run: npm ci
 
       - name: Run SSR tests
-        run: node ./tests/ssr.js
+        run: node packages/angular-runtime/tests/ssr.js
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.deploy-url }}
