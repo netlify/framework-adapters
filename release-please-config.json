@@ -8,12 +8,8 @@
     "packages/angular-runtime": {
       "exclude-paths": ["packages/angular-runtime/demo", "packages/angular-runtime/tests"]
     },
-    "packages/nuxt-module": {
-      "release-as": "0.3.9"
-    },
-    "packages/vite-plugin": {
-      "release-as": "2.12.9"
-    },
+    "packages/nuxt-module": {},
+    "packages/vite-plugin": {},
     "packages/vite-plugin-tanstack-start": {
       "exclude-paths": ["packages/vite-plugin-tanstack-start/test"]
     }
