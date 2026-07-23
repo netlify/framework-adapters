@@ -6,7 +6,7 @@ import dedent from 'dedent'
 import type { Plugin } from 'vite'
 
 import { createLoggerFromViteLogger, type Logger } from './lib/logger.js'
-import { createBuildPlugin } from './lib/build.js'
+import { createBuildPlugin, createSpaConfigPlugin } from './lib/build.js'
 
 export interface NetlifyPluginOptions extends Features {
   /**
@@ -141,7 +141,7 @@ export default function netlify(options: NetlifyPluginOptions = {}): any {
   }
 
   const { enabled, ...buildOptions } = options.build ?? {}
-  return [devPlugin, ...(enabled === true ? [createBuildPlugin(buildOptions)] : [])]
+  return [devPlugin, createSpaConfigPlugin(), ...(enabled === true ? [createBuildPlugin(buildOptions)] : [])]
 }
 
 const warnOnDuplicatePlugin = (logger: Logger) => {

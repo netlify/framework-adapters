@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join, relative, sep } from 'node:path'
 import { sep as posixSep } from 'node:path/posix'
 
@@ -10,6 +10,7 @@ import { version, name } from '../../package.json'
 
 // https://docs.netlify.com/frameworks-api/#netlify-v1-functions
 const NETLIFY_FUNCTIONS_DIR = '.netlify/v1/functions'
+const NETLIFY_CONFIG_PATH = '.netlify/v1/config.json'
 
 const NETLIFY_FUNCTION_FILENAME = 'server.mjs'
 const NETLIFY_FUNCTION_DEFAULT_NAME = '@netlify/vite-plugin server handler'
@@ -93,6 +94,60 @@ export function createBuildPlugin(options?: { displayName?: string; edgeSSR?: bo
       )
       createLoggerFromViteLogger(resolvedConfig.logger).log(
         `✓ Wrote SSR entry point to ${join(NETLIFY_FUNCTIONS_DIR, NETLIFY_FUNCTION_FILENAME)}\n`,
+      )
+    },
+  }
+}
+
+const readNetlifyConfig = async (path: string): Promise<Record<string, unknown>> => {
+  try {
+    const jsonFile = await readFile(path, 'utf8')
+    return JSON.parse(jsonFile) as Record<string, unknown>
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return {}
+    }
+
+    throw error
+  }
+}
+
+// Marks the site as a single-page app so the Netlify build system serves `index.html` for all paths
+// that don't match a static file, mirroring Vite's own dev server and preview behavior for `appType: 'spa'`.
+// https://docs.netlify.com/frameworks-api/#netlify-v1-configjson
+export function createSpaConfigPlugin(): Plugin {
+  let resolvedConfig: ResolvedConfig
+
+  return {
+    apply: 'build',
+    applyToEnvironment({ name }) {
+      return name === 'client'
+    },
+    configResolved(config) {
+      resolvedConfig = config
+    },
+    name: 'vite-plugin-netlify:spa-config',
+    async writeBundle() {
+      if (resolvedConfig.appType !== 'spa') {
+        return
+      }
+
+      const configPath = join(resolvedConfig.root, NETLIFY_CONFIG_PATH)
+      const config = await readNetlifyConfig(configPath)
+
+      await mkdir(join(resolvedConfig.root, '.netlify/v1'), {
+        recursive: true,
+      })
+
+      await writeFile(
+        configPath,
+        JSON.stringify({
+          ...config,
+          build: {
+            ...(config.build as Record<string, unknown> | undefined),
+            spa: true,
+          },
+        }),
       )
     },
   }
