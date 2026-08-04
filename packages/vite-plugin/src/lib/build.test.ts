@@ -22,14 +22,14 @@ describe('createSpaConfigPlugin', () => {
   const configPath = () => join(root, '.netlify/v1/config.json')
   const readConfig = async (): Promise<unknown> => JSON.parse(await readFile(configPath(), 'utf8'))
 
-  test('writes build.spa = true for a default (SPA) app', async () => {
+  test('writes spa_fallback = true for a default (SPA) app', async () => {
     await build({
       root,
       logLevel: 'silent',
       plugins: [createSpaConfigPlugin()],
     })
 
-    expect(await readConfig()).toEqual({ build: { spa: true } })
+    expect(await readConfig()).toEqual({ spa_fallback: true })
   })
 
   test('merges into an existing config.json, preserving other keys', async () => {
@@ -47,7 +47,8 @@ describe('createSpaConfigPlugin', () => {
 
     expect(await readConfig()).toEqual({
       redirects: [{ from: '/a', to: '/b' }],
-      build: { command: 'npm run build', spa: true },
+      build: { command: 'npm run build' },
+      spa_fallback: true,
     })
   })
 

@@ -143,10 +143,7 @@ export function createSpaConfigPlugin(): Plugin {
         configPath,
         JSON.stringify({
           ...config,
-          build: {
-            ...(config.build as Record<string, unknown> | undefined),
-            spa: true,
-          },
+          spa_fallback: true,
         }),
       )
     },
