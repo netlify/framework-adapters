@@ -18,7 +18,7 @@ export interface NetlifyPluginOptions extends Features {
   /**
    * Options for building your app for deployment to Netlify.
    *
-   * @experimental These options are not yet stable and may change in a minor release.
+   * @experimental These options are experimental and only tested on some versions of some frameworks; see below.
    */
   build?: {
     /**
