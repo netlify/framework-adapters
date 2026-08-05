@@ -39,9 +39,7 @@ The plugin accepts the following options:
 - `redirects`: Configure URL redirects
 - `staticFiles`: Configure static file serving
 
-### Build options
-
-> These options are **experimental** and may change in a minor release.
+### EXPERIMENTAL: Building your app for deployment
 
 The `build` options prepare your app's server build for deployment to Netlify, so you don't need a framework-specific
 adapter or plugin. They're currently supported for TanStack Start and SolidStart 2 projects.
