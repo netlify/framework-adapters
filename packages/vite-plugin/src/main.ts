@@ -16,15 +16,16 @@ export interface NetlifyPluginOptions extends Features {
   middleware?: boolean
 
   /**
-   * DO NOT USE - build options, not meant for public use at this time.
-   * @private
+   * Options for building your app for deployment to Netlify.
+   *
+   * @experimental These options are not yet stable and may change in a minor release.
    */
   build?: {
     /**
      * Prepare the server build for deployment to Netlify - no additional configuration,
      * plugins, or adapters necessary (default: false).
      *
-     * This is currently only supported for TanStack Start projects.
+     * This is currently supported for TanStack Start and SolidStart 2 projects.
      */
     enabled?: boolean
     /**
