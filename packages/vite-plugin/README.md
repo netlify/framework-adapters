@@ -45,7 +45,6 @@ The `build` options prepare your app's server build for deployment to Netlify, s
 adapter or plugin. They're currently supported for TanStack Start and SolidStart 2 projects.
 
 - `build.enabled` (boolean, default: `false`): Prepare the server build for deployment to Netlify
-  Functions
 - `build.displayName` (string, default: `@netlify/vite-plugin server handler`): A display name for the serverless
   function or edge function deployed to Netlify
 
