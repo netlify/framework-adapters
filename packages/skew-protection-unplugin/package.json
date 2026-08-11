@@ -1,0 +1,79 @@
+{
+  "name": "@netlify/skew-protection-unplugin",
+  "version": "0.1.0",
+  "description": "Bundler-agnostic plugin for skew-protection on Netlify",
+  "type": "module",
+  "engines": {
+    "node": "^20.6.1 || >=22"
+  },
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": "./dist/main.js",
+    "./vite": "./dist/vite.js",
+    "./webpack": "./dist/webpack.js",
+    "./rollup": "./dist/rollup.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsup-node",
+    "prepack": "npm run build",
+    "test": "vitest run",
+    "test:dev": "vitest",
+    "test:ci": "vitest run",
+    "dev": "tsup-node --watch",
+    "publint": "npx -y publint --strict"
+  },
+  "keywords": [
+    "netlify",
+    "unplugin",
+    "vite-plugin",
+    "webpack-plugin",
+    "skew-protection"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netlify/framework-adapters.git",
+    "directory": "packages/skew-protection-unplugin"
+  },
+  "bugs": {
+    "url": "https://github.com/netlify/framework-adapters/issues"
+  },
+  "author": "Netlify Inc.",
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "html-webpack-plugin": "^5.6.8",
+    "rollup": "^4.62.4",
+    "tsup": "^8.5.1",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10",
+    "webpack": "^5.109.2"
+  },
+  "dependencies": {
+    "unplugin": "^3.3.0"
+  },
+  "peerDependencies": {
+    "html-webpack-plugin": "^5",
+    "rollup": "^3 || ^4",
+    "vite": "^4 || ^5 || ^6 || ^7",
+    "webpack": "^5"
+  },
+  "peerDependenciesMeta": {
+    "html-webpack-plugin": {
+      "optional": true
+    },
+    "rollup": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
+  }
+}
