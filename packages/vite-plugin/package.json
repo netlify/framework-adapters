@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@netlify/dev": "^4.18.7",
-    "@netlify/dev-utils": "^4.4.6",
+    "@netlify/dev-utils": "^5.0.0",
     "dedent": "^1.7.2"
   },
   "peerDependencies": {
