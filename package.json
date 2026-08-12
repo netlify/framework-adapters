@@ -5,7 +5,7 @@
   "workspaces": [
     "packages/angular-runtime",
     "packages/nuxt-module",
-    "packages/skew-protection-unplugin",
+    "packages/unplugin-skew-protection",
     "packages/vite-plugin",
     "packages/vite-plugin-tanstack-start"
   ],

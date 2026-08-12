@@ -73,13 +73,13 @@ jobs:
             npm publish packages/nuxt-module/ --provenance --access=public
           fi
       - if:
-          ${{ steps.release.outputs['packages/skew-protection-unplugin--release_created'] || github.event_name ==
+          ${{ steps.release.outputs['packages/unplugin-skew-protection--release_created'] || github.event_name ==
           'workflow_dispatch' }}
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            npm publish packages/skew-protection-unplugin/ --provenance --access=public || true
+            npm publish packages/unplugin-skew-protection/ --provenance --access=public || true
           else
-            npm publish packages/skew-protection-unplugin/ --provenance --access=public
+            npm publish packages/unplugin-skew-protection/ --provenance --access=public
           fi
       - if:
           ${{ steps.release.outputs['packages/vite-plugin--release_created'] || github.event_name == 'workflow_dispatch'

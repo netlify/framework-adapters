@@ -9,7 +9,7 @@
       "exclude-paths": ["packages/angular-runtime/demo", "packages/angular-runtime/tests"]
     },
     "packages/nuxt-module": {},
-    "packages/skew-protection-unplugin": {},
+    "packages/unplugin-skew-protection": {},
     "packages/vite-plugin": {},
     "packages/vite-plugin-tanstack-start": {
       "exclude-paths": ["packages/vite-plugin-tanstack-start/test"]

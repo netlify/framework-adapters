@@ -1,4 +1,4 @@
-# @netlify/skew-protection-unplugin
+# @netlify/unplugin-skew-protection
 
 A bundler-agnostic plugin, built on [unplugin](https://unplugin.unjs.io/), that implements Netlify's
 [Skew Protection](https://docs.netlify.com/deploy/deploy-overview#skew-protection) for frameworks not covered by any
@@ -18,7 +18,7 @@ don't hit "loading chunk failed" errors (or a CSS/JS mismatch) when a newer depl
 ## Installation
 
 ```bash
-npm install -D @netlify/skew-protection-unplugin
+npm install -D @netlify/unplugin-skew-protection
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ Each bundler has its own entry point, so you only pull in the code for the bundl
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
-import skewProtection from '@netlify/skew-protection-unplugin/vite'
+import skewProtection from '@netlify/unplugin-skew-protection/vite'
 
 export default defineConfig({
   plugins: [skewProtection()],
@@ -41,7 +41,7 @@ export default defineConfig({
 
 ```js
 // webpack.config.js
-const skewProtection = require('@netlify/skew-protection-unplugin/webpack')
+const skewProtection = require('@netlify/unplugin-skew-protection/webpack')
 
 module.exports = {
   plugins: [skewProtection()],
@@ -52,7 +52,7 @@ module.exports = {
 
 ```js
 // rollup.config.js
-import skewProtection from '@netlify/skew-protection-unplugin/rollup'
+import skewProtection from '@netlify/unplugin-skew-protection/rollup'
 
 export default {
   plugins: [skewProtection()],
@@ -63,7 +63,7 @@ Alternatively, import the default export from the package root and call `.vite()
 if you need to target more than one bundler from the same module:
 
 ```ts
-import skewProtection from '@netlify/skew-protection-unplugin'
+import skewProtection from '@netlify/unplugin-skew-protection'
 
 skewProtection.vite()
 skewProtection.webpack()
@@ -96,8 +96,8 @@ development and for sites that haven't provisioned skew protection.
 
 - **Vite 8+ (Rolldown-based Vite) and bare Rolldown are not supported.** Vite 8 switched its bundler engine from Rollup
   to [Rolldown](https://rolldown.rs/), and Rolldown (as of v1.2.3) never invokes the `renderDynamicImport` plugin hook
-  this plugin relies on to stamp lazily-loaded chunks. Installing this plugin under Vite 8 would silently no-op
-  the chunk-stamping feature even though everything else (build, types) looks fine.
+  this plugin relies on to stamp lazily-loaded chunks. Installing this plugin under Vite 8 would silently no-op the
+  chunk-stamping feature even though everything else (build, types) looks fine.
 - **Only JS dynamic imports and entry `<script>`/`<link>` tags are stamped.** Images, fonts, and other static assets are
   never stamped, even if you add matching extensions to `patterns` — there's no hook here that rewrites `<img>` tags,
   CSS `url(...)` references, `@font-face`, or preload links.
