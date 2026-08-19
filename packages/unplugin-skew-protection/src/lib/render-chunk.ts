@@ -1,7 +1,6 @@
 import MagicString from 'magic-string'
-import type { Plugin as VitePlugin } from 'vite'
 
-import { appendQueryParam, compilePatterns, matchesAnyPattern } from './patterns.js'
+import { compilePatterns, matchesAnyPattern } from './patterns.js'
 import type { ResolvedSkewProtectionOptions } from './options.js'
 
 const DYNAMIC_IMPORT_RE = /import\((["'`])([^"'`]+)\1\)/g
@@ -16,7 +15,7 @@ interface NormalizedSourceMap {
 }
 
 type RenderChunkResult = { code: string; map: NormalizedSourceMap } | null
-type RenderChunkHook = (code: string) => RenderChunkResult
+export type RenderChunkHook = (code: string) => RenderChunkResult
 
 /**
  * Stamps dynamic `import()` call sites in already-rendered chunk code.
@@ -37,7 +36,7 @@ type RenderChunkHook = (code: string) => RenderChunkResult
  * Rolldown define their own `Plugin` type rather than re-exporting Rollup's, so the
  * three aren't interchangeable at the type level (even though they're runtime-compatible).
  */
-function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunkHook {
+export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunkHook {
   const regexps = compilePatterns(resolved.patterns)
   const suffix = `?${resolved.paramName}=${encodeURIComponent(resolved.token)}`
 
@@ -90,32 +89,4 @@ function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunk
  */
 export function createRollupHooks(resolved: ResolvedSkewProtectionOptions): { renderChunk: RenderChunkHook } {
   return { renderChunk: createRenderChunk(resolved) }
-}
-
-export function createViteHooks(resolved: ResolvedSkewProtectionOptions): Partial<VitePlugin> {
-  const regexps = compilePatterns(resolved.patterns)
-
-  return {
-    apply: 'build',
-    renderChunk: createRenderChunk(resolved),
-    transformIndexHtml(html) {
-      return decorateHtml(html, resolved, regexps)
-    },
-  }
-}
-
-function decorateHtml(html: string, resolved: ResolvedSkewProtectionOptions, regexps: RegExp[]): string {
-  function decorateTag(tag: string, attribute: 'href' | 'src') {
-    return tag.replace(new RegExp(`${attribute}="([^"]+)"`), (match, url: string) => {
-      if (!matchesAnyPattern(url, regexps)) {
-        return match
-      }
-
-      return `${attribute}="${appendQueryParam(url, resolved.paramName, resolved.token)}"`
-    })
-  }
-
-  return html
-    .replace(/<script\b[^>]*>/g, (tag) => decorateTag(tag, 'src'))
-    .replace(/<link\b[^>]*>/g, (tag) => decorateTag(tag, 'href'))
 }

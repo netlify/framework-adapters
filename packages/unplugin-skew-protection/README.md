@@ -9,11 +9,11 @@ don't hit "loading chunk failed" errors (or a CSS/JS mismatch) when a newer depl
 
 ## Bundler support
 
-| Bundler                                | Support                                                                                                                  |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Vite (any version) / Rollup / Rolldown | Stamps lazily-loaded chunks (via `renderChunk`) and initial entry tags (via `transformIndexHtml`, Vite only)             |
-| Webpack 5                              | Stamps lazily-loaded JS/CSS chunks (via a runtime module) and initial entry tags (via `html-webpack-plugin`, if present) |
-| esbuild, Rspack, others                | Not yet supported                                                                                                        |
+| Bundler                  | Support                                                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Rolldown / Rollup / Vite | Stamps lazily-loaded chunks (via `renderChunk`) and initial entry tags (via `transformIndexHtml`, Vite only)             |
+| Webpack 5                | Stamps lazily-loaded JS/CSS chunks (via a runtime module) and initial entry tags (via `html-webpack-plugin`, if present) |
+| esbuild, Rspack, others  | Not yet supported                                                                                                        |
 
 ## Installation
 
@@ -23,7 +23,7 @@ npm install -D @netlify/unplugin-skew-protection
 
 ## Usage
 
-Each bundler has its own entry point (`vite`, `webpack`, `rollup`, `rolldown`), so you only pull in the code for the
+Each bundler has its own entry point (`rolldown`, `rollup`, `vite`, `webpack`), so you only pull in the code for the
 bundler you're actually using:
 
 ### Vite
@@ -49,17 +49,6 @@ module.exports = {
 }
 ```
 
-### Rollup
-
-```js
-// rollup.config.js
-import skewProtection from '@netlify/unplugin-skew-protection/rollup'
-
-export default {
-  plugins: [skewProtection()],
-}
-```
-
 ### Rolldown
 
 ```js
@@ -71,16 +60,27 @@ export default {
 }
 ```
 
-Alternatively, import the default export from the package root and call `.vite()`/`.webpack()`/`.rollup()`/`.rolldown()`
+### Rollup
+
+```js
+// rollup.config.js
+import skewProtection from '@netlify/unplugin-skew-protection/rollup'
+
+export default {
+  plugins: [skewProtection()],
+}
+```
+
+Alternatively, import the default export from the package root and call `.rolldown()`/`.rollup()`/`.vite()`/`.webpack()`/
 on it, useful if you need to target more than one bundler from the same module:
 
 ```ts
 import skewProtection from '@netlify/unplugin-skew-protection'
 
+skewProtection.rolldown()
+skewProtection.rollup()
 skewProtection.vite()
 skewProtection.webpack()
-skewProtection.rollup()
-skewProtection.rolldown()
 ```
 
 ## How it works
@@ -121,5 +121,5 @@ development and for sites that haven't provisioned skew protection.
   shared-chunk preloads outside of the primary dynamic `import()` target, those are not currently stamped.
 - `renderChunk` operates on already-rendered code and its sourcemap, rather than at codegen time like
   `renderDynamicImport` did. MagicString produces an accurate map for the edit itself, but this is a slightly less
-  "native" mechanism than a codegen-level hook — see the source comment in `vite-rollup.ts` for details.
+  "native" mechanism than a codegen-level hook — see the source comment in `render-chunk.ts` for details.
 - Rspack and esbuild are not yet supported.
