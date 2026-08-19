@@ -4,6 +4,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 
 import { afterEach, describe, expect, test } from 'vitest'
+import { rolldown } from 'rolldown'
 import { rollup, type OutputChunk } from 'rollup'
 
 import { assertDefined } from './lib/test-utils.js'
@@ -75,5 +76,37 @@ describe('skewProtection', () => {
       patterns: ['.*\\.(js|mjs|cjs)$', '.*\\.css$'],
       sources: [{ type: 'query', name: 'nfdpl' }],
     })
+  })
+
+  test('stamps dynamic imports for a Rolldown build', async () => {
+    const virtualFiles: Record<string, string> = {
+      'entry.js': `import('lazy.js').then((m) => console.log(m.default))`,
+      'lazy.js': `export default 'lazy chunk'`,
+    }
+
+    const virtualPlugin = {
+      load(id: string) {
+        return virtualFiles[id]
+      },
+      name: 'virtual',
+      resolveId(id: string) {
+        const key = id.replace(/^\.\//, '')
+        return key in virtualFiles ? key : null
+      },
+    }
+
+    const bundle = await rolldown({
+      input: 'entry.js',
+      plugins: [virtualPlugin, skewProtection.rolldown({ token: 'abc123', paramName: 'nfdpl' })],
+    })
+
+    const { output } = await bundle.generate({ format: 'es' })
+
+    // Rolldown's OutputChunk is unrelated to Rollup's guard, so assert the minimal shape needed.
+    const entryChunk = assertDefined(output.find((chunk) => chunk.type === 'chunk' && chunk.isEntry)) as {
+      code: string
+    }
+
+    expect(entryChunk.code).toContain('?nfdpl=abc123')
   })
 })

@@ -20,6 +20,9 @@ export function unpluginFactory(userOptions: SkewProtectionOptions | undefined =
 
   return {
     name: 'netlify:skew-protection',
+    // Rolldown and Rollup share the hooks this plugin uses, but each target only
+    // merges its own field, so both must be set explicitly.
+    rolldown: createRollupHooks(resolved),
     rollup: createRollupHooks(resolved),
     webpack(compiler) {
       applySkewProtectionWebpackPlugin(compiler, resolved)

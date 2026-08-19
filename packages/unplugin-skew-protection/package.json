@@ -13,6 +13,7 @@
     "./vite": "./dist/vite.js",
     "./webpack": "./dist/webpack.js",
     "./rollup": "./dist/rollup.js",
+    "./rolldown": "./dist/rolldown.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -29,10 +30,11 @@
   },
   "keywords": [
     "netlify",
+    "rolldown",
+    "skew-protection",
     "unplugin",
     "vite-plugin",
-    "webpack-plugin",
-    "skew-protection"
+    "webpack-plugin"
   ],
   "license": "MIT",
   "repository": {
@@ -47,23 +49,29 @@
   "devDependencies": {
     "@types/node": "^20.19.43",
     "html-webpack-plugin": "^5.6.8",
+    "rolldown": "^1.2.4",
     "rollup": "^4.62.4",
     "tsup": "^8.5.1",
-    "vite": "^7.3.6",
+    "vite": "^8.2.1",
     "vitest": "^4.1.10",
     "webpack": "^5.109.2"
   },
   "dependencies": {
+    "magic-string": "^1.2.1",
     "unplugin": "^3.3.0"
   },
   "peerDependencies": {
     "html-webpack-plugin": "^5",
+    "rolldown": "^1",
     "rollup": "^3 || ^4",
-    "vite": "^4 || ^5 || ^6 || ^7",
+    "vite": "^4 || ^5 || ^6 || ^7 || ^8",
     "webpack": "^5"
   },
   "peerDependenciesMeta": {
     "html-webpack-plugin": {
+      "optional": true
+    },
+    "rolldown": {
       "optional": true
     },
     "rollup": {
