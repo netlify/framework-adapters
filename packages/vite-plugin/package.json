@@ -38,6 +38,7 @@
   "author": "Netlify Inc.",
   "devDependencies": {
     "@types/node": "^20.19.43",
+    "normalize-package-data": "^8.0.0",
     "playwright": "^1.61.0",
     "tsup": "^8.5.1",
     "vite": "^6.4.3",
