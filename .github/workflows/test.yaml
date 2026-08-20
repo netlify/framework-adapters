@@ -62,16 +62,10 @@ jobs:
           'netlify/framework-adapters' }}
         run: echo "SKIP_LIVE_TESTS=true" >> "$GITHUB_ENV"
       - name: Tests
-        # angular-runtime requires Node 22+, so it's excluded on the Node 20 job
-        if: ${{ matrix.node-version != '20.19.0' }}
+        # A workspace that needs a newer Node than this matrix entry skips itself, so there is
+        # no list of workspaces to keep in sync here. See angular-runtime's
+        # `tools/when-supported-node.js`.
         run: npm run test --workspaces=true
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      - name: Tests (excludes angular-runtime, which requires Node 22+)
-        if: ${{ matrix.node-version == '20.19.0' }}
-        run: >-
-          npm run test --workspace=packages/nuxt-module --workspace=packages/vite-plugin
-          --workspace=packages/vite-plugin-tanstack-start
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       - name: Warn if live tests were skipped

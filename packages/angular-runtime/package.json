@@ -57,9 +57,9 @@
     "pretest:fixtures:angular-22": "cd tests/fixtures/angular-22 && npm ci",
     "pretest:fixtures:nx-angular-19-common-engine": "cd tests/fixtures/nx-angular-19-common-engine && npm ci",
     "pretest:fixtures:nx-angular-19-app-engine": "cd tests/fixtures/nx-angular-19-app-engine && npm ci",
-    "pretest": "run-s pretest:*",
+    "pretest": "node tools/skip-unsupported-node.js || run-s pretest:*",
     "publint": "npx -y publint --strict",
-    "test": "node --test"
+    "test": "node tools/skip-unsupported-node.js || node --test"
   },
   "repository": {
     "type": "git",
@@ -83,7 +83,8 @@
     "@opentelemetry/api": "~1.8.0",
     "@types/node": "^24.0.0",
     "netlify-cli": "^27.0.0",
-    "npm-run-all2": "^8.0.4"
+    "npm-run-all2": "^8.0.4",
+    "semver": "^7.7.2"
   },
   "dependencies": {
     "@netlify/edge-functions": "^3.0.8",
