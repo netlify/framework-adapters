@@ -26,6 +26,28 @@ npm install -D @netlify/unplugin-skew-protection
 Each bundler has its own entry point (`rolldown`, `rollup`, `vite`, `webpack`), so you only pull in the code for the
 bundler you're actually using:
 
+### Rollup
+
+```js
+// rollup.config.js
+import skewProtection from '@netlify/unplugin-skew-protection/rollup'
+
+export default {
+  plugins: [skewProtection()],
+}
+```
+
+### Rolldown
+
+```js
+// rolldown.config.js
+import skewProtection from '@netlify/unplugin-skew-protection/rolldown'
+
+export default {
+  plugins: [skewProtection()],
+}
+```
+
 ### Vite
 
 ```ts
@@ -47,40 +69,6 @@ import skewProtection from '@netlify/unplugin-skew-protection/webpack'
 export default {
   plugins: [skewProtection()],
 }
-```
-
-### Rolldown
-
-```js
-// rolldown.config.js
-import skewProtection from '@netlify/unplugin-skew-protection/rolldown'
-
-export default {
-  plugins: [skewProtection()],
-}
-```
-
-### Rollup
-
-```js
-// rollup.config.js
-import skewProtection from '@netlify/unplugin-skew-protection/rollup'
-
-export default {
-  plugins: [skewProtection()],
-}
-```
-
-Alternatively, import the default export from the package root and call `.rolldown()`/`.rollup()`/`.vite()`/`.webpack()`
-on it, useful if you need to target more than one bundler from the same module:
-
-```ts
-import skewProtection from '@netlify/unplugin-skew-protection'
-
-skewProtection.rolldown()
-skewProtection.rollup()
-skewProtection.vite()
-skewProtection.webpack()
 ```
 
 ## How it works

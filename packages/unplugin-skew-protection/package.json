@@ -6,10 +6,7 @@
   "engines": {
     "node": "^20.6.1 || >=22"
   },
-  "main": "./dist/main.js",
-  "types": "./dist/main.d.ts",
   "exports": {
-    ".": "./dist/main.js",
     "./package.json": "./package.json",
     "./rolldown": "./dist/rolldown.js",
     "./rollup": "./dist/rollup.js",

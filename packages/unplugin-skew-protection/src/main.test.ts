@@ -9,12 +9,14 @@ import { rollup, type OutputChunk } from 'rollup'
 import webpack from 'webpack'
 
 import { assertDefined } from './lib/test-utils.js'
-import skewProtection from './main.js'
+import rolldownSkewProtection from './rolldown.js'
+import rollupSkewProtection from './rollup.js'
+import webpackSkewProtection from './webpack.js'
 
 const isEntryChunk = (chunk: { type: string; isEntry?: boolean }): chunk is OutputChunk =>
   chunk.type === 'chunk' && Boolean(chunk.isEntry)
 
-describe('skewProtection', () => {
+describe('unpluginFactory, exercised through each bundler entry point', () => {
   const dirsToClean: string[] = []
   const originalToken = env.NETLIFY_SKEW_PROTECTION_TOKEN
 
@@ -36,7 +38,7 @@ describe('skewProtection', () => {
       load: (id: string) => (id === 'entry.js' ? `console.log('hi')` : null),
     }
 
-    const bundle = await rollup({ input: 'entry.js', plugins: [virtualPlugin, skewProtection.rollup()] })
+    const bundle = await rollup({ input: 'entry.js', plugins: [virtualPlugin, rollupSkewProtection()] })
     const { output } = await bundle.generate({ format: 'es' })
     const entryChunk = assertDefined(output.find(isEntryChunk))
     expect(entryChunk.code).not.toContain('nfdpl')
@@ -63,7 +65,7 @@ describe('skewProtection', () => {
 
     const bundle = await rollup({
       input: 'entry.js',
-      plugins: [virtualPlugin, skewProtection.rollup({ token: 'abc123', paramName: 'nfdpl', baseDir })],
+      plugins: [virtualPlugin, rollupSkewProtection({ token: 'abc123', paramName: 'nfdpl', baseDir })],
     })
     const { output } = await bundle.write({ format: 'es', dir: join(baseDir, 'dist') })
 
@@ -98,7 +100,7 @@ describe('skewProtection', () => {
 
     const bundle = await rolldown({
       input: 'entry.js',
-      plugins: [virtualPlugin, skewProtection.rolldown({ token: 'abc123', paramName: 'nfdpl' })],
+      plugins: [virtualPlugin, rolldownSkewProtection({ token: 'abc123', paramName: 'nfdpl' })],
     })
 
     const { output } = await bundle.generate({ format: 'es' })
@@ -126,7 +128,7 @@ describe('skewProtection', () => {
           mode: 'production',
           optimization: { minimize: false },
           output: { filename: 'main.js', path: join(baseDir, 'dist') },
-          plugins: [skewProtection.webpack({ baseDir, paramName: 'nfdpl', token: 'abc123' })],
+          plugins: [webpackSkewProtection({ baseDir, paramName: 'nfdpl', token: 'abc123' })],
         },
         (err, stats) => {
           if (err) {
