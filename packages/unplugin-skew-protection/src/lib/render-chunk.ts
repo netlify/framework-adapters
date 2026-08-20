@@ -80,6 +80,6 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
 // to avoid coupling the shared value to either plugin type.
 export function createRollupHooks(resolved: ResolvedSkewProtectionOptions): { renderChunk: RenderChunkHook } {
   return {
-    renderChunk: createRenderChunk(resolved)
+    renderChunk: createRenderChunk(resolved),
   }
 }

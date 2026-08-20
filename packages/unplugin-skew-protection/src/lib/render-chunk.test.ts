@@ -156,9 +156,7 @@ describe('createRenderChunk', () => {
     const code = `// import('lazy.js')\nconsole.log("import('lazy.js')")\nimport('lazy.js')`
     const result = assertDefined(await renderChunk(code))
 
-    expect(result.code).toBe(
-      `// import('lazy.js')\nconsole.log("import('lazy.js')")\nimport('lazy.js?nfdpl=abc123')`,
-    )
+    expect(result.code).toBe(`// import('lazy.js')\nconsole.log("import('lazy.js')")\nimport('lazy.js?nfdpl=abc123')`)
   })
 
   test('stamps a dynamic import that passes an options argument', async () => {

@@ -125,7 +125,6 @@ describe('applySkewProtectionWebpackPlugin', () => {
       module: {
         exports: {},
       },
-      require,
       self: undefined,
       setTimeout,
     }
@@ -146,6 +145,7 @@ describe('applySkewProtectionWebpackPlugin', () => {
 
     const resolved = assertDefined(
       resolveOptions({
+        paramName: 'nfdpl',
         patterns: ['.*\\.wasm$'],
         token: 'abc123',
       }),
@@ -173,7 +173,10 @@ describe('applySkewProtectionWebpackPlugin', () => {
     })
 
     const mainBundle = await readFile(join(root, 'dist', 'main.js'), 'utf8')
-    expect(mainBundle).not.toContain('nfdpl')
+    // Asserts against the suffix this exact config would produce, rather than a bare
+    // paramName substring — so the check can't coincidentally pass if the default paramName
+    // ever changes to something that no longer happens to match the literal here.
+    expect(mainBundle).not.toContain(`?${resolved.paramName}=${resolved.token}`)
   })
 
   test('decorates initial script/link tags emitted by html-webpack-plugin', async () => {

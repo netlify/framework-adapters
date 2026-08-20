@@ -18,13 +18,18 @@ export function createViteHooks(resolved: ResolvedSkewProtectionOptions): Partia
 
 function decorateHtml(html: string, resolved: ResolvedSkewProtectionOptions, regexps: RegExp[]): string {
   function decorateTag(tag: string, attribute: 'href' | 'src') {
-    return tag.replace(new RegExp(`${attribute}="([^"]+)"`), (match, url: string) => {
-      if (!matchesAnyPattern(url, regexps)) {
-        return match
-      }
+    // Anchors the attribute name, supports both quote styles via the backreference, and matches
+    // tag/attribute names case-insensitively.
+    return tag.replace(
+      new RegExp(`(?<![\\w-])${attribute}\\s*=\\s*(["'])([^"']*)\\1`, 'i'),
+      (match, quote: string, url: string) => {
+        if (!matchesAnyPattern(url, regexps)) {
+          return match
+        }
 
-      return `${attribute}="${appendQueryParam(url, resolved.paramName, resolved.token)}"`
-    })
+        return `${attribute}=${quote}${appendQueryParam(url, resolved.paramName, resolved.token)}${quote}`
+      },
+    )
   }
 
   return html

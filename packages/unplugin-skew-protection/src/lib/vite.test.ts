@@ -58,6 +58,47 @@ describe('createViteHooks', () => {
     expect(result).toContain('href="/favicon.ico"')
   })
 
+  test('decorates uppercase tags and single-quoted attributes', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+
+    const html = [
+      '<HTML><HEAD>',
+      "<LINK REL='stylesheet' HREF='/assets/index-abc.css'>",
+      "<SCRIPT TYPE='module' SRC='/assets/index-abc.js'></SCRIPT>",
+      '</HEAD></HTML>',
+    ].join('')
+
+    const result = transformIndexHtml(html)
+    expect(result).toContain("href='/assets/index-abc.css?nfdpl=abc123'")
+    expect(result).toContain("src='/assets/index-abc.js?nfdpl=abc123'")
+  })
+
+  test('does not mistake a data-src attribute for src', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+
+    const html = '<script data-src="/assets/lazy-preview.js" src="/assets/index-abc.js"></script>'
+
+    const result = transformIndexHtml(html)
+    expect(result).toContain('data-src="/assets/lazy-preview.js"')
+    expect(result).toContain('src="/assets/index-abc.js?nfdpl=abc123"')
+  })
+
   test('stamps a lazily-loaded chunk in a real Vite build', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'skew-protection-vite-'))
 
