@@ -199,9 +199,9 @@ describe('createRolldownRollupHooks', () => {
 
     const { output } = await bundle.generate({ format: 'es' })
 
-    const htmlAsset = assertDefined(
-      output.find((file) => file.type === 'asset' && file.fileName === 'index.html'),
-    ) as { source: string | Uint8Array }
+    const htmlAsset = assertDefined(output.find((file) => file.type === 'asset' && file.fileName === 'index.html')) as {
+      source: string | Uint8Array
+    }
     expect(String(htmlAsset.source)).toContain('?nfdpl=abc123')
   })
 })

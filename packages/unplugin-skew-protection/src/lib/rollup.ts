@@ -42,9 +42,10 @@ function createGenerateBundleHook(resolved: ResolvedSkewProtectionOptions): Gene
 
 // Shared by Rollup and Rolldown targets, kept package-agnostic
 // to avoid coupling the shared value to either plugin type.
-export function createRolldownRollupHooks(
-  resolved: ResolvedSkewProtectionOptions,
-): { generateBundle: GenerateBundleHook; renderChunk: RenderChunkHook } {
+export function createRolldownRollupHooks(resolved: ResolvedSkewProtectionOptions): {
+  generateBundle: GenerateBundleHook
+  renderChunk: RenderChunkHook
+} {
   return {
     generateBundle: createGenerateBundleHook(resolved),
     renderChunk: createRenderChunk(resolved),
