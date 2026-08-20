@@ -1,0 +1,24 @@
+{
+  "name": "@netlify/framework-adapters-test-utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.6.1 || >=22"
+  },
+  "exports": "./src/main.ts",
+  "scripts": {
+    "build": "echo 'No build'",
+    "test": "vitest run --passWithNoTests",
+    "dev": "tsc --noEmit --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "js-image-generator": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.9"
+  }
+}
