@@ -6,22 +6,6 @@ export function appendQueryParam(url: string, paramName: string, token: string):
   return `${base}${separator}${paramName}=${encodeURIComponent(token)}${fragment}`
 }
 
-export function hasQueryParam(url: string, paramName: string, token: string): boolean {
-  const hashIndex = url.indexOf('#')
-  const base = hashIndex === -1 ? url : url.slice(0, hashIndex)
-  const queryIndex = base.indexOf('?')
-
-  if (queryIndex === -1) {
-    return false
-  }
-
-  const target = `${paramName}=${encodeURIComponent(token)}`
-  return base
-    .slice(queryIndex + 1)
-    .split('&')
-    .includes(target)
-}
-
 export function compilePatterns(patterns: string[]): RegExp[] {
   return patterns.map((pattern) => {
     try {
@@ -34,6 +18,23 @@ export function compilePatterns(patterns: string[]): RegExp[] {
       })
     }
   })
+}
+
+export function hasQueryParam(url: string, paramName: string, token: string): boolean {
+  const hashIndex = url.indexOf('#')
+  const base = hashIndex === -1 ? url : url.slice(0, hashIndex)
+  const queryIndex = base.indexOf('?')
+
+  if (queryIndex === -1) {
+    return false
+  }
+
+  const target = `${paramName}=${encodeURIComponent(token)}`
+
+  return base
+    .slice(queryIndex + 1)
+    .split('&')
+    .includes(target)
 }
 
 export function matchesAnyPattern(value: string, regexps: RegExp[]): boolean {

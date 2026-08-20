@@ -40,6 +40,46 @@ function compile(config: Configuration): Promise<Stats> {
   })
 }
 
+// Executes a compiled webpack runtime in a minimal DOM shim and returns URLs
+// requested for lazy chunks, letting tests verify actual chunk-loading behavior
+// instead of searching bundle source text.
+
+async function captureRequestedUrls(mainBundle: string): Promise<string[]> {
+  const capturedUrls: string[] = []
+
+  const context: {
+    [key: string]: unknown
+    self: unknown
+  } = {
+    clearTimeout,
+    console,
+    document: {
+      createElement: () => ({}),
+      getElementsByTagName: () => [],
+      head: {
+        appendChild(element: { src?: string }) {
+          return capturedUrls.push(element.src ?? '')
+        },
+      },
+    },
+    module: {
+      exports: {},
+    },
+    self: undefined,
+    setTimeout,
+  }
+
+  context.self = context
+  const vm = await import('node:vm')
+  vm.createContext(context)
+  vm.runInContext(mainBundle, context, {
+    filename: 'main.js',
+  })
+
+  await new Promise((resolve) => setTimeout(resolve, 50))
+  return capturedUrls
+}
+
 describe('applySkewProtectionWebpackPlugin', () => {
   const dirsToClean: string[] = []
 
@@ -103,50 +143,31 @@ describe('applySkewProtectionWebpackPlugin', () => {
     const mainBundle = await readFile(join(root, 'dist', 'main.js'), 'utf8')
     expect(mainBundle).toContain('?nfdpl=abc123')
 
-    // Execute the compiled runtime in a minimal DOM shim and confirm the script
-    // element created for the lazily loaded chunk carries the query parameter.
-    const capturedUrls: string[] = []
-
-    const context: {
-      [key: string]: unknown
-      self: unknown
-    } = {
-      clearTimeout,
-      console,
-      document: {
-        createElement: () => ({}),
-        getElementsByTagName: () => [],
-        head: {
-          appendChild(element: { src?: string }) {
-            return capturedUrls.push(element.src ?? '')
-          },
-        },
-      },
-      module: {
-        exports: {},
-      },
-      self: undefined,
-      setTimeout,
-    }
-
-    context.self = context
-    const vm = await import('node:vm')
-    vm.createContext(context)
-    vm.runInContext(mainBundle, context, {
-      filename: 'main.js',
-    })
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    const capturedUrls = await captureRequestedUrls(mainBundle)
     expect(capturedUrls).toEqual([`/assets/${lazyChunkFile}?nfdpl=abc123`])
   })
 
-  test('only wraps the JS chunk-filename function when patterns match JS but not CSS', async () => {
-    const root = await setupFixture()
+  test('matches each chunk against the configured patterns individually, not by a fixed asset-type probe', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'skew-protection-webpack-'))
+    dirsToClean.push(root)
+
+    await writeFile(
+      join(root, 'index.js'),
+      [
+        `import(/* webpackChunkName: "included" */ './included.js').then((m) => console.log(m.default))`,
+        `import(/* webpackChunkName: "excluded" */ './excluded.js').then((m) => console.log(m.default))`,
+      ].join('\n'),
+    )
+    await writeFile(join(root, 'included.js'), `module.exports = 'included chunk'`)
+    await writeFile(join(root, 'excluded.js'), `module.exports = 'excluded chunk'`)
 
     const resolved = assertDefined(
       resolveOptions({
         paramName: 'nfdpl',
-        patterns: ['.*\\.(js|mjs|cjs)$'],
+        // Matches only the "included" chunk's generated filename — not "excluded.js" or
+        // "main.js" — a shape the old fixed `__netlify_probe__.js`/`.css` classification
+        // couldn't honor, since it stamped (or skipped) an entire asset type at once.
+        patterns: ['^included\\.js$'],
         token: 'abc123',
       }),
     )
@@ -159,6 +180,7 @@ describe('applySkewProtectionWebpackPlugin', () => {
         minimize: false,
       },
       output: {
+        chunkFilename: '[name].js',
         filename: 'main.js',
         path: join(root, 'dist'),
         publicPath: '/assets/',
@@ -173,8 +195,10 @@ describe('applySkewProtectionWebpackPlugin', () => {
     })
 
     const mainBundle = await readFile(join(root, 'dist', 'main.js'), 'utf8')
-    expect(mainBundle).toContain('__netlifyOrigChunkScriptFilename__')
-    expect(mainBundle).not.toContain('__netlifyOrigChunkCssFilename__')
+    const capturedUrls = await captureRequestedUrls(mainBundle)
+
+    expect(capturedUrls).toContainEqual('/assets/included.js?nfdpl=abc123')
+    expect(capturedUrls).toContainEqual('/assets/excluded.js')
   })
 
   test('is a no-op when patterns do not match JS/CSS assets', async () => {
@@ -188,7 +212,7 @@ describe('applySkewProtectionWebpackPlugin', () => {
       }),
     )
 
-    await compile({
+    const stats = await compile({
       context: root,
       entry: join(root, 'index.js'),
       mode: 'production',
@@ -209,11 +233,17 @@ describe('applySkewProtectionWebpackPlugin', () => {
       ],
     })
 
+    const { chunks } = stats.toJson({
+      chunks: true,
+    })
+
+    const lazyChunk = assertDefined(assertDefined(chunks).find((chunk) => !chunk.names.includes('main')))
+    const lazyChunkFile = assertDefined(lazyChunk.files)[0]
+
     const mainBundle = await readFile(join(root, 'dist', 'main.js'), 'utf8')
-    // Asserts against the suffix this exact config would produce, rather than a bare
-    // paramName substring — so the check can't coincidentally pass if the default paramName
-    // ever changes to something that no longer happens to match the literal here.
-    expect(mainBundle).not.toContain(`?${resolved.paramName}=${resolved.token}`)
+    const capturedUrls = await captureRequestedUrls(mainBundle)
+
+    expect(capturedUrls).toEqual([`/assets/${lazyChunkFile}`])
   })
 
   test('decorates initial script/link tags emitted by html-webpack-plugin', async () => {
