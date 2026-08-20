@@ -57,9 +57,9 @@
     "pretest:fixtures:angular-22": "cd tests/fixtures/angular-22 && npm ci",
     "pretest:fixtures:nx-angular-19-common-engine": "cd tests/fixtures/nx-angular-19-common-engine && npm ci",
     "pretest:fixtures:nx-angular-19-app-engine": "cd tests/fixtures/nx-angular-19-app-engine && npm ci",
-    "pretest": "run-s pretest:*",
+    "pretest": "node tools/skip-unsupported-node.js || run-s pretest:*",
     "publint": "npx -y publint --strict",
-    "test": "node --test"
+    "test": "node tools/skip-unsupported-node.js || node --test"
   },
   "repository": {
     "type": "git",
