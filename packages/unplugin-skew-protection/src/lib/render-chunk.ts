@@ -1,7 +1,7 @@
 import { init, parse } from 'es-module-lexer'
 import MagicString from 'magic-string'
 
-import { compilePatterns, matchesAnyPattern } from './patterns.js'
+import { appendQueryParam, compilePatterns, matchesAnyPattern } from './patterns.js'
 import type { ResolvedSkewProtectionOptions } from './options.js'
 
 interface NormalizedSourceMap {
@@ -19,7 +19,10 @@ export type RenderChunkHook = (code: string) => Promise<RenderChunkResult>
 // Stamps dynamic `import()` call sites in already-rendered chunk code
 export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunkHook {
   const regexps = compilePatterns(resolved.patterns)
-  const suffix = `?${resolved.paramName}=${encodeURIComponent(resolved.token)}`
+  // Only used to detect specifiers this hook has already stamped (idempotency), not to build the
+  // replacement text — the actual query param is appended per-specifier via `appendQueryParam`,
+  // which correctly merges with any existing `?query` or `#fragment` already on the specifier.
+  const marker = `${resolved.paramName}=${encodeURIComponent(resolved.token)}`
 
   return async (code) => {
     if (!code.includes('import(')) {
@@ -42,14 +45,16 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
 
       const specifier = imp.n
 
-      if (specifier.includes(suffix) || !matchesAnyPattern(specifier, regexps)) {
+      if (specifier.includes(marker) || !matchesAnyPattern(specifier, regexps)) {
         continue
       }
 
       // For a dynamic `import()`, `s`/`e` span the specifier including its quotes (unlike
-      // static imports, where they exclude them), so insert just before the closing quote.
+      // static imports, where they exclude them), so the raw specifier text is `s + 1` to `e - 1`.
+      const stamped = appendQueryParam(specifier, resolved.paramName, resolved.token)
+
       magicString ??= new MagicString(code)
-      magicString.appendLeft(imp.e - 1, suffix)
+      magicString.overwrite(imp.s + 1, imp.e - 1, stamped)
     }
 
     if (!magicString) {

@@ -18,16 +18,21 @@ export function createViteHooks(resolved: ResolvedSkewProtectionOptions): Partia
 
 function decorateHtml(html: string, resolved: ResolvedSkewProtectionOptions, regexps: RegExp[]): string {
   function decorateTag(tag: string, attribute: 'href' | 'src') {
-    // Anchors the attribute name, supports both quote styles via the backreference, and matches
-    // tag/attribute names case-insensitively.
+    // Anchors the attribute name, supports both quote styles via the backreference (or no quotes
+    // at all, per the HTML spec's unquoted-value syntax), and matches tag/attribute names
+    // case-insensitively.
     return tag.replace(
-      new RegExp(`(?<![\\w-])${attribute}\\s*=\\s*(["'])([^"']*)\\1`, 'i'),
-      (match, quote: string, url: string) => {
+      new RegExp(`(?<![\\w-])${attribute}\\s*=\\s*(?:(["'])([^"']*)\\1|([^\\s"'=<>\`]+))`, 'i'),
+      (match, quote: string | undefined, quotedUrl: string | undefined, unquotedUrl: string | undefined) => {
+        const url = quotedUrl ?? unquotedUrl ?? ''
         if (!matchesAnyPattern(url, regexps)) {
           return match
         }
 
-        return `${attribute}=${quote}${appendQueryParam(url, resolved.paramName, resolved.token)}${quote}`
+        // Always quote the output: the appended `?param=token` suffix contains `=`, which HTML
+        // forbids in an unquoted attribute value.
+        const outputQuote = quote ?? '"'
+        return `${attribute}=${outputQuote}${appendQueryParam(url, resolved.paramName, resolved.token)}${outputQuote}`
       },
     )
   }

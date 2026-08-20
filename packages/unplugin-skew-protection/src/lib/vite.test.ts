@@ -99,6 +99,30 @@ describe('createViteHooks', () => {
     expect(result).toContain('src="/assets/index-abc.js?nfdpl=abc123"')
   })
 
+  test('decorates unquoted attribute values', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+
+    const html = [
+      '<html><head>',
+      '<link rel=stylesheet href=/assets/index-abc.css>',
+      '</head><body>',
+      '<script type=module src=/assets/index-abc.js></script>',
+      '</body></html>',
+    ].join('')
+
+    const result = transformIndexHtml(html)
+    expect(result).toContain('href="/assets/index-abc.css?nfdpl=abc123"')
+    expect(result).toContain('src="/assets/index-abc.js?nfdpl=abc123"')
+  })
+
   test('stamps a lazily-loaded chunk in a real Vite build', async () => {
     const root = await mkdtemp(path.join(tmpdir(), 'skew-protection-vite-'))
 

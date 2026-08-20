@@ -176,4 +176,26 @@ describe('createRenderChunk', () => {
     const code = `const path = 'lazy.js'; import(path)`
     expect(await renderChunk(code)).toBeNull()
   })
+
+  test('merges with an existing query string instead of appending a second "?"', async () => {
+    // A pattern without a `.js$` anchor, since the default patterns wouldn't match a specifier
+    // that already ends in a query string or fragment.
+    const resolved = assertDefined(resolveOptions({ patterns: ['^lazy\\.js'], paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `import('lazy.js?v=1')`
+    const result = assertDefined(await renderChunk(code))
+
+    expect(result.code).toBe(`import('lazy.js?v=1&nfdpl=abc123')`)
+  })
+
+  test('inserts before a URL fragment instead of appending after it', async () => {
+    const resolved = assertDefined(resolveOptions({ patterns: ['^lazy\\.js'], paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `import('lazy.js#foo')`
+    const result = assertDefined(await renderChunk(code))
+
+    expect(result.code).toBe(`import('lazy.js?nfdpl=abc123#foo')`)
+  })
 })

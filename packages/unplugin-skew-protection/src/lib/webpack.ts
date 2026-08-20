@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'
 
 import type { Chunk, Compiler } from 'webpack'
 
-import { compilePatterns, matchesAnyPattern } from './patterns.js'
+import { appendQueryParam, compilePatterns, matchesAnyPattern } from './patterns.js'
 import type { ResolvedSkewProtectionOptions } from './options.js'
 
 const PLUGIN_NAME = 'netlify-skew-protection'
@@ -64,8 +64,7 @@ function stampAttribute(
     return
   }
 
-  const separator = url.includes('?') ? '&' : '?'
-  tag.attributes[attributeName] = `${url}${separator}${resolved.paramName}=${encodeURIComponent(resolved.token)}`
+  tag.attributes[attributeName] = appendQueryParam(url, resolved.paramName, resolved.token)
 }
 
 function wrapChunkFilenameFunctions(compiler: Compiler, suffix: string) {
