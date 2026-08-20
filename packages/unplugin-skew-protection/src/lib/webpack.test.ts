@@ -51,7 +51,10 @@ async function captureRequestedUrls(mainBundle: string): Promise<string[]> {
     [key: string]: unknown
     self: unknown
   } = {
-    clearTimeout,
+    // Webpack's chunk-load runtime schedules a real timeout before `appendChild` and only clears
+    // it from the script's `onload`/`onerror` handlers, which this shim never invokes — using the
+    // real timers here would leave a live ~120s timer referenced after every call.
+    clearTimeout: () => undefined,
     console,
     document: {
       createElement: () => ({}),
@@ -66,7 +69,7 @@ async function captureRequestedUrls(mainBundle: string): Promise<string[]> {
       exports: {},
     },
     self: undefined,
-    setTimeout,
+    setTimeout: () => 0,
   }
 
   context.self = context
