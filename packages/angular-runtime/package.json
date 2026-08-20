@@ -83,8 +83,7 @@
     "@opentelemetry/api": "~1.8.0",
     "@types/node": "^24.0.0",
     "netlify-cli": "^27.0.0",
-    "npm-run-all2": "^8.0.4",
-    "semver": "^7.7.2"
+    "npm-run-all2": "^8.0.4"
   },
   "dependencies": {
     "@netlify/edge-functions": "^3.0.8",
