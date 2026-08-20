@@ -117,6 +117,47 @@ describe('createViteHooks', () => {
     expect(result).toContain('src="/assets/index-abc.js?nfdpl=abc123"')
   })
 
+  test('does not decorate a script tag written inside an HTML comment', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+
+    const html = [
+      '<!--',
+      '<script src="/assets/index-abc.js"></script>',
+      '-->',
+      '<script src="/assets/index-real.js"></script>',
+    ].join('\n')
+
+    const result = transformIndexHtml(html)
+    expect(result).toContain('<script src="/assets/index-abc.js"></script>\n-->')
+    expect(result).toContain('src="/assets/index-real.js?nfdpl=abc123"')
+  })
+
+  test('does not decorate a string literal inside a script body that looks like a tag', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+
+    const html = `<script>const s = "<script src=quux.js>"</script><script src="/assets/index-real.js"></script>`
+
+    const result = transformIndexHtml(html)
+    expect(result).toContain('const s = "<script src=quux.js>"')
+    expect(result).toContain('src="/assets/index-real.js?nfdpl=abc123"')
+  })
+
   test('decorates unquoted attribute values', () => {
     const resolved = assertDefined(
       resolveOptions({
