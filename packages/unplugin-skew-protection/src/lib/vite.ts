@@ -18,11 +18,13 @@ export function createViteHooks(resolved: ResolvedSkewProtectionOptions): Partia
 
 function decorateHtml(html: string, resolved: ResolvedSkewProtectionOptions, regexps: RegExp[]): string {
   function decorateTag(tag: string, attribute: 'href' | 'src') {
-    // Anchors the attribute name, supports both quote styles via the backreference (or no quotes
-    // at all, per the HTML spec's unquoted-value syntax), and matches tag/attribute names
+    // Anchors the attribute name to a preceding whitespace/tag-start boundary (rather than just
+    // excluding word chars and hyphens) so a colon-namespaced attribute like `data:src` doesn't
+    // get mistaken for `src`. Supports both quote styles via the backreference (or no quotes at
+    // all, per the HTML spec's unquoted-value syntax), and matches tag/attribute names
     // case-insensitively.
     return tag.replace(
-      new RegExp(`(?<![\\w-])${attribute}\\s*=\\s*(?:(["'])([^"']*)\\1|([^\\s"'=<>\`]+))`, 'i'),
+      new RegExp(`(?<!\\S)${attribute}\\s*=\\s*(?:(["'])([^"']*)\\1|([^\\s"'=<>\`]+))`, 'i'),
       (match, quote: string | undefined, quotedUrl: string | undefined, unquotedUrl: string | undefined) => {
         const url = quotedUrl ?? unquotedUrl ?? ''
         if (!matchesAnyPattern(url, regexps)) {

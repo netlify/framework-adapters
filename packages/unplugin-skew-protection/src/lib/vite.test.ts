@@ -99,6 +99,24 @@ describe('createViteHooks', () => {
     expect(result).toContain('src="/assets/index-abc.js?nfdpl=abc123"')
   })
 
+  test('does not mistake a colon-namespaced data:src attribute for src', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+
+    const html = '<script data:src="/assets/lazy-preview.js" src="/assets/index-abc.js"></script>'
+
+    const result = transformIndexHtml(html)
+    expect(result).toContain('data:src="/assets/lazy-preview.js"')
+    expect(result).toContain('src="/assets/index-abc.js?nfdpl=abc123"')
+  })
+
   test('decorates unquoted attribute values', () => {
     const resolved = assertDefined(
       resolveOptions({
