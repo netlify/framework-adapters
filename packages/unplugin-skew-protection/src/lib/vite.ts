@@ -66,5 +66,15 @@ function decorateAttribute(
   const quote = /^[^=]+=(["'])/.exec(raw)?.[1] ?? '"'
   const stampedUrl = appendQueryParam(attr.value, resolved.paramName, resolved.token)
 
-  magicString.overwrite(location.startOffset, location.endOffset, `${attributeName}=${quote}${stampedUrl}${quote}`)
+  // parse5 decodes HTML entities in `attr.value` (e.g. `&quot;` -> `"`), so a matching URL that
+  // contains an encoded quote/ampersand would otherwise be written back as literal markup — closing
+  // the attribute early and injecting whatever follows as a new attribute.
+  const escapedUrl = escapeAttributeValue(stampedUrl, quote)
+
+  magicString.overwrite(location.startOffset, location.endOffset, `${attributeName}=${quote}${escapedUrl}${quote}`)
+}
+
+function escapeAttributeValue(value: string, quote: string): string {
+  const quoteEntity = quote === "'" ? '&#39;' : '&quot;'
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(new RegExp(quote, 'g'), quoteEntity)
 }

@@ -158,6 +158,23 @@ describe('createViteHooks', () => {
     expect(result).toContain('src="/assets/index-real.js?nfdpl=abc123"')
   })
 
+  test('escapes a decoded quote in the matched URL instead of injecting a new attribute', () => {
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        patterns: ['^/assets/'],
+        token: 'abc123',
+      }),
+    )
+
+    const hooks = createViteHooks(resolved)
+    const transformIndexHtml = assertDefined(hooks.transformIndexHtml) as (html: string) => string
+    const html = '<script src="/assets/app.js&quot; onload=&quot;evil()"></script>'
+    const result = transformIndexHtml(html)
+    expect(result).not.toContain('" onload="')
+    expect(result).toContain('src="/assets/app.js&quot; onload=&quot;evil()?nfdpl=abc123"')
+  })
+
   test('decorates unquoted attribute values', () => {
     const resolved = assertDefined(
       resolveOptions({
