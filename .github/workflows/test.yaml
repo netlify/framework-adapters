@@ -6,8 +6,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - "**"
-      - "!release-please--**"
+      - '**'
+      - '!release-please--**'
   merge_group:
 jobs:
   test:
@@ -16,16 +16,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node-version: ["24"]
+        node-version: ['24']
         # `node-install-version` is what `setup-node` actually installs.
         # `node-version` is the display value used in the matrix job name
         # (which required status checks are pinned to), so it must stay stable.
-        node-install-version: ["24.15.0"]
+        node-install-version: ['24.15.0']
         include:
           - os: ubuntu-latest
             # min node-version required by optional native bindings (e.g. @oxc-parser)
-            node-version: "20.19.0"
-            node-install-version: "20.19.0"
+            node-version: '20.19.0'
+            node-install-version: '20.19.0'
       fail-fast: false
     steps:
       # Increasing the maximum number of open files. See:
@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-install-version }}
-          cache: "npm"
+          cache: 'npm'
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
