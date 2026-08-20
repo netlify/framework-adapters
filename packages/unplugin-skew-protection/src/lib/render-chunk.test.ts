@@ -156,7 +156,7 @@ describe('createRenderChunk', () => {
     const code = `// import('lazy.js')\nconsole.log("import('lazy.js')")\nimport('lazy.js')`
     const result = assertDefined(await renderChunk(code))
 
-    expect(result.code).toBe(`// import('lazy.js')\nconsole.log("import('lazy.js')")\nimport('lazy.js?nfdpl=abc123')`)
+    expect(result.code).toBe(`// import('lazy.js')\nconsole.log("import('lazy.js')")\nimport("lazy.js?nfdpl=abc123")`)
   })
 
   test('stamps a dynamic import that passes an options argument', async () => {
@@ -166,7 +166,7 @@ describe('createRenderChunk', () => {
     const code = `import('lazy.json', { with: { type: 'json' } })`
     const result = assertDefined(await renderChunk(code))
 
-    expect(result.code).toBe(`import('lazy.json?nfdpl=abc123', { with: { type: 'json' } })`)
+    expect(result.code).toBe(`import("lazy.json?nfdpl=abc123", { with: { type: 'json' } })`)
   })
 
   test('is a no-op for a dynamic import with a non-literal specifier', async () => {
@@ -186,7 +186,7 @@ describe('createRenderChunk', () => {
     const code = `import('lazy.js?v=1')`
     const result = assertDefined(await renderChunk(code))
 
-    expect(result.code).toBe(`import('lazy.js?v=1&nfdpl=abc123')`)
+    expect(result.code).toBe(`import("lazy.js?v=1&nfdpl=abc123")`)
   })
 
   test('inserts before a URL fragment instead of appending after it', async () => {
@@ -196,6 +196,35 @@ describe('createRenderChunk', () => {
     const code = `import('lazy.js#foo')`
     const result = assertDefined(await renderChunk(code))
 
-    expect(result.code).toBe(`import('lazy.js?nfdpl=abc123#foo')`)
+    expect(result.code).toBe(`import("lazy.js?nfdpl=abc123#foo")`)
+  })
+
+  test('stamps a specifier even when the marker text appears inside another query value', async () => {
+    const resolved = assertDefined(resolveOptions({ patterns: ['^lazy\\.js'], paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `import('lazy.js?debug=nfdpl=abc123')`
+    const result = assertDefined(await renderChunk(code))
+
+    expect(result.code).toBe(`import("lazy.js?debug=nfdpl=abc123&nfdpl=abc123")`)
+  })
+
+  test('does not re-stamp a specifier that already carries the exact marker', async () => {
+    const resolved = assertDefined(resolveOptions({ patterns: ['^lazy\\.js'], paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `import('lazy.js?nfdpl=abc123')`
+    expect(await renderChunk(code)).toBeNull()
+  })
+
+  test('produces valid JavaScript for a specifier containing an escaped quote', async () => {
+    const resolved = assertDefined(resolveOptions({ paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = String.raw`import("./lazy\"chunk.js")`
+    const result = assertDefined(await renderChunk(code))
+
+    expect(result.code).toBe(String.raw`import("./lazy\"chunk.js?nfdpl=abc123")`)
+    expect(() => new Function(`return ${result.code}`)).not.toThrow()
   })
 })

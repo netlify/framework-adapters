@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { appendQueryParam, compilePatterns, matchesAnyPattern } from './patterns.js'
+import { appendQueryParam, compilePatterns, hasQueryParam, matchesAnyPattern } from './patterns.js'
 
 describe('compilePatterns', () => {
   test('throws a clear error for an invalid regular expression', () => {
@@ -36,5 +36,21 @@ describe('appendQueryParam', () => {
 
   test('inserts before a URL fragment when the URL already has a query string', () => {
     expect(appendQueryParam('/assets/app.js?v=1#foo', 'nfdpl', 'abc')).toBe('/assets/app.js?v=1&nfdpl=abc#foo')
+  })
+})
+
+describe('hasQueryParam', () => {
+  test('returns false when there is no query string', () => {
+    expect(hasQueryParam('/assets/app.js', 'nfdpl', 'abc123')).toBe(false)
+  })
+
+  test('returns true when the exact parameter is present', () => {
+    expect(hasQueryParam('/assets/app.js?nfdpl=abc123', 'nfdpl', 'abc123')).toBe(true)
+    expect(hasQueryParam('/assets/app.js?v=1&nfdpl=abc123', 'nfdpl', 'abc123')).toBe(true)
+    expect(hasQueryParam('/assets/app.js?nfdpl=abc123#foo', 'nfdpl', 'abc123')).toBe(true)
+  })
+
+  test('returns false when the marker only appears inside another parameter value', () => {
+    expect(hasQueryParam('/assets/app.js?debug=nfdpl=abc123', 'nfdpl', 'abc123')).toBe(false)
   })
 })

@@ -1,7 +1,7 @@
 import { init, parse } from 'es-module-lexer'
 import MagicString from 'magic-string'
 
-import { appendQueryParam, compilePatterns, matchesAnyPattern } from './patterns.js'
+import { appendQueryParam, compilePatterns, hasQueryParam, matchesAnyPattern } from './patterns.js'
 import type { ResolvedSkewProtectionOptions } from './options.js'
 
 interface NormalizedSourceMap {
@@ -19,10 +19,6 @@ export type RenderChunkHook = (code: string) => Promise<RenderChunkResult>
 // Stamps dynamic `import()` call sites in already-rendered chunk code
 export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunkHook {
   const regexps = compilePatterns(resolved.patterns)
-  // Only used to detect specifiers this hook has already stamped (idempotency), not to build the
-  // replacement text — the actual query param is appended per-specifier via `appendQueryParam`,
-  // which correctly merges with any existing `?query` or `#fragment` already on the specifier.
-  const marker = `${resolved.paramName}=${encodeURIComponent(resolved.token)}`
 
   return async (code) => {
     if (!code.includes('import(')) {
@@ -45,16 +41,18 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
 
       const specifier = imp.n
 
-      if (specifier.includes(marker) || !matchesAnyPattern(specifier, regexps)) {
+      // Detects an exact paramName=token query parameter to ensure idempotency
+      // and avoid matching marker-shaped values embedded in other parameters.
+      if (hasQueryParam(specifier, resolved.paramName, resolved.token) || !matchesAnyPattern(specifier, regexps)) {
         continue
       }
 
-      // For a dynamic `import()`, `s`/`e` span the specifier including its quotes (unlike
-      // static imports, where they exclude them), so the raw specifier text is `s + 1` to `e - 1`.
       const stamped = appendQueryParam(specifier, resolved.paramName, resolved.token)
 
+      // For dynamic import(), s/e include the quotes, while imp.n is decoded.
+      // Re-serialize it with JSON.stringify to safely handle escaped quotes and backslashes.
       magicString ??= new MagicString(code)
-      magicString.overwrite(imp.s + 1, imp.e - 1, stamped)
+      magicString.overwrite(imp.s, imp.e, JSON.stringify(stamped))
     }
 
     if (!magicString) {
