@@ -29,4 +29,12 @@ describe('appendQueryParam', () => {
   test('encodes the token value', () => {
     expect(appendQueryParam('/assets/app.js', 'nfdpl', 'a b&c')).toBe('/assets/app.js?nfdpl=a%20b%26c')
   })
+
+  test('inserts before a URL fragment when the URL has no query string', () => {
+    expect(appendQueryParam('/assets/app.js#foo', 'nfdpl', 'abc')).toBe('/assets/app.js?nfdpl=abc#foo')
+  })
+
+  test('inserts before a URL fragment when the URL already has a query string', () => {
+    expect(appendQueryParam('/assets/app.js?v=1#foo', 'nfdpl', 'abc')).toBe('/assets/app.js?v=1&nfdpl=abc#foo')
+  })
 })

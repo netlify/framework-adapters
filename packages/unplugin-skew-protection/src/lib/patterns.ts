@@ -1,6 +1,9 @@
 export function appendQueryParam(url: string, paramName: string, token: string): string {
-  const separator = url.includes('?') ? '&' : '?'
-  return `${url}${separator}${paramName}=${encodeURIComponent(token)}`
+  const hashIndex = url.indexOf('#')
+  const base = hashIndex === -1 ? url : url.slice(0, hashIndex)
+  const fragment = hashIndex === -1 ? '' : url.slice(hashIndex)
+  const separator = base.includes('?') ? '&' : '?'
+  return `${base}${separator}${paramName}=${encodeURIComponent(token)}${fragment}`
 }
 
 export function compilePatterns(patterns: string[]): RegExp[] {

@@ -42,9 +42,9 @@ export default defineConfig({
 
 ```js
 // webpack.config.js
-const skewProtection = require('@netlify/unplugin-skew-protection/webpack')
+import skewProtection from '@netlify/unplugin-skew-protection/webpack'
 
-module.exports = {
+export default {
   plugins: [skewProtection()],
 }
 ```
@@ -71,8 +71,9 @@ export default {
 }
 ```
 
-Alternatively, import the default export from the package root and call `.rolldown()`/`.rollup()`/`.vite()`/`.webpack()`/
-on it, useful if you need to target more than one bundler from the same module:
+Alternatively, import the default export from the package root and call
+`.rolldown()`/`.rollup()`/`.vite()`/`.webpack()`/ on it, useful if you need to target more than one bundler from the
+same module:
 
 ```ts
 import skewProtection from '@netlify/unplugin-skew-protection'

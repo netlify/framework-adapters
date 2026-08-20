@@ -1,61 +1,55 @@
+import { init, parse } from 'es-module-lexer'
 import MagicString from 'magic-string'
 
 import { compilePatterns, matchesAnyPattern } from './patterns.js'
 import type { ResolvedSkewProtectionOptions } from './options.js'
 
-const DYNAMIC_IMPORT_RE = /import\((["'`])([^"'`]+)\1\)/g
-
 interface NormalizedSourceMap {
-  version: number
   file?: string
+  mappings: string
+  names: string[]
   sources: string[]
   sourcesContent?: string[]
-  names: string[]
-  mappings: string
+  version: number
 }
 
 type RenderChunkResult = { code: string; map: NormalizedSourceMap } | null
-export type RenderChunkHook = (code: string) => RenderChunkResult
+export type RenderChunkHook = (code: string) => Promise<RenderChunkResult>
 
-/**
- * Stamps dynamic `import()` call sites in already-rendered chunk code.
- *
- * Uses `renderChunk` rather than `renderDynamicImport` because Rolldown — the bundler
- * Vite 8+ runs on — never invokes `renderDynamicImport` (confirmed by calling Rolldown
- * directly), while `renderChunk` is a universal hook supported by Rollup, Rolldown, and
- * every bundler built on either. Using it everywhere means one mechanism instead of two.
- *
- * By the time `renderChunk` runs, the target's real (hashed) specifier is already in the
- * code, so — unlike the old `renderDynamicImport`-based approach — each match can be
- * tested against `patterns` individually instead of gating the whole hook on/off with a
- * synthetic probe string.
- *
- * Returns a plain function rather than a `Partial<RollupPlugin>`/`Partial<VitePlugin>`/
- * `Partial<RolldownPlugin>` so `createRollupHooks` and `createViteHooks` can each
- * type-check it against their own package's `Plugin` type independently — Vite 8+ and
- * Rolldown define their own `Plugin` type rather than re-exporting Rollup's, so the
- * three aren't interchangeable at the type level (even though they're runtime-compatible).
- */
+// Stamps dynamic `import()` call sites in already-rendered chunk code
 export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunkHook {
   const regexps = compilePatterns(resolved.patterns)
   const suffix = `?${resolved.paramName}=${encodeURIComponent(resolved.token)}`
 
-  return (code) => {
+  return async (code) => {
     if (!code.includes('import(')) {
       return null
     }
 
+    await init
+
+    const [imports] = parse(code)
     let magicString: MagicString | undefined
 
-    for (const match of code.matchAll(DYNAMIC_IMPORT_RE)) {
-      const [, quote, specifier] = match
+    for (const imp of imports) {
+      // `d > -1` marks a dynamic `import(...)` call site (as opposed to a static import or
+      // `import.meta`); `n` is only populated when the specifier is a plain string literal, which
+      // excludes comments, string/template literals elsewhere in the code, and non-literal
+      // specifiers (e.g. `import(someVariable)`) that can't be matched against `patterns`.
+      if (imp.d === -1 || imp.n === undefined) {
+        continue
+      }
+
+      const specifier = imp.n
+
       if (specifier.includes(suffix) || !matchesAnyPattern(specifier, regexps)) {
         continue
       }
 
+      // For a dynamic `import()`, `s`/`e` span the specifier including its quotes (unlike
+      // static imports, where they exclude them), so insert just before the closing quote.
       magicString ??= new MagicString(code)
-      const specifierEnd = match.index + 'import('.length + quote.length + specifier.length
-      magicString.appendLeft(specifierEnd, suffix)
+      magicString.appendLeft(imp.e - 1, suffix)
     }
 
     if (!magicString) {
@@ -63,30 +57,29 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
     }
 
     // See https://rolldown.rs/apis/plugin-api/transformations#transforming-a-chunk
-    const map = magicString.generateMap({ hires: 'boundary' })
+    const map = magicString.generateMap({
+      hires: 'boundary',
+    })
+
     return {
       code: magicString.toString(),
       map: {
-        version: map.version,
         file: map.file,
+        mappings: map.mappings,
+        names: map.names,
         sources: map.sources,
         // magic-string types this as `(string | null)[]`; Rollup/Rolldown expect `string[]`.
         sourcesContent: map.sourcesContent?.map((content) => content ?? ''),
-        names: map.names,
-        mappings: map.mappings,
+        version: map.version,
       },
     }
   }
 }
 
-/**
- * Shared by the `rollup` and `rolldown` unplugin targets. Typed as a minimal,
- * package-agnostic shape — not `Partial<RollupPlugin>` — because unplugin only merges
- * each target's own same-named field (e.g. `rolldown` only reads `UnpluginOptions.rolldown`),
- * so this same value gets assigned to both `Partial<RollupPlugin>` and `Partial<RolldownPlugin>`
- * at the call site; typing it against either package specifically would reintroduce the
- * cross-package coupling `createRenderChunk` above already avoids.
- */
+// Shared by Rollup and Rolldown targets, kept package-agnostic
+// to avoid coupling the shared value to either plugin type.
 export function createRollupHooks(resolved: ResolvedSkewProtectionOptions): { renderChunk: RenderChunkHook } {
-  return { renderChunk: createRenderChunk(resolved) }
+  return {
+    renderChunk: createRenderChunk(resolved)
+  }
 }

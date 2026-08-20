@@ -28,6 +28,6 @@ function decorateHtml(html: string, resolved: ResolvedSkewProtectionOptions, reg
   }
 
   return html
-    .replace(/<script\b[^>]*>/g, (tag) => decorateTag(tag, 'src'))
-    .replace(/<link\b[^>]*>/g, (tag) => decorateTag(tag, 'href'))
+    .replace(/<script\b[^>]*>/gi, (tag) => decorateTag(tag, 'src'))
+    .replace(/<link\b[^>]*>/gi, (tag) => decorateTag(tag, 'href'))
 }
