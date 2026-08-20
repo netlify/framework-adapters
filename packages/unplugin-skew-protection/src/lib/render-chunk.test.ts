@@ -1,3 +1,4 @@
+import { init, parse } from 'es-module-lexer'
 import { describe, expect, test } from 'vitest'
 import { rolldown } from 'rolldown'
 import { rollup, type OutputChunk } from 'rollup'
@@ -225,6 +226,10 @@ describe('createRenderChunk', () => {
     const result = assertDefined(await renderChunk(code))
 
     expect(result.code).toBe(String.raw`import("./lazy\"chunk.js?nfdpl=abc123")`)
-    expect(() => new Function(`return ${result.code}`)).not.toThrow()
+
+    await init
+    const [imports] = parse(result.code)
+    expect(imports).toHaveLength(1)
+    expect(imports[0]?.n).toBe('./lazy"chunk.js?nfdpl=abc123')
   })
 })
