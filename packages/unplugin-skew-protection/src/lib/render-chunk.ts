@@ -78,11 +78,3 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
     }
   }
 }
-
-// Shared by Rollup and Rolldown targets, kept package-agnostic
-// to avoid coupling the shared value to either plugin type.
-export function createRollupHooks(resolved: ResolvedSkewProtectionOptions): { renderChunk: RenderChunkHook } {
-  return {
-    renderChunk: createRenderChunk(resolved),
-  }
-}

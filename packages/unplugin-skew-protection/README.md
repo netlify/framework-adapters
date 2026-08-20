@@ -9,11 +9,11 @@ don't hit "loading chunk failed" errors (or a CSS/JS mismatch) when a newer depl
 
 ## Bundler support
 
-| Bundler                  | Support                                                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| Rolldown / Rollup / Vite | Stamps lazily-loaded chunks (via `renderChunk`) and initial entry tags (via `transformIndexHtml`, Vite only)             |
-| Webpack 5                | Stamps lazily-loaded JS/CSS chunks (via a runtime module) and initial entry tags (via `html-webpack-plugin`, if present) |
-| esbuild, Rspack, others  | Not yet supported                                                                                                        |
+| Bundler                  | Support                                                                                                                                                                                                    |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rolldown / Rollup / Vite | Stamps lazily-loaded chunks (via `renderChunk`) and initial entry tags — via `transformIndexHtml` on Vite, or any `.html` asset another plugin emits (e.g. `@rollup/plugin-html`) on plain Rollup/Rolldown |
+| Webpack 5                | Stamps lazily-loaded JS/CSS chunks (via a runtime module) and initial entry tags (via `html-webpack-plugin`, if present)                                                                                   |
+| esbuild, Rspack, others  | Not yet supported                                                                                                                                                                                          |
 
 ## Installation
 
@@ -82,6 +82,13 @@ export default {
     [MagicString](https://github.com/rich-harris/magic-string) to keep sourcemaps accurate), rather than
     `renderDynamicImport` — Rolldown (the bundler Vite 8+ runs on) never invokes `renderDynamicImport`, so `renderChunk`
     is used everywhere for one consistent mechanism instead of two.
+  - On plain Rollup/Rolldown (no Vite), initial `<script>`/`<link>` tags are stamped via a `generateBundle` hook
+    (registered with `order: 'post'`, so it runs regardless of plugin registration order) that decorates any `.html`
+    asset already emitted into the bundle — by
+    [`@rollup/plugin-html`](https://github.com/rollup/plugins/tree/master/packages/html) or any similar plugin. It's a
+    no-op if nothing emits an HTML asset. The HTML is parsed with [parse5](https://github.com/inikulin/parse5) (the same
+    mechanism Vite's `transformIndexHtml` handling uses) rather than regular expressions, so text that only looks like a
+    tag — inside a comment, or inside a `<script>` element's own body — is never mistaken for a real one.
 - **Manifest**: a `.netlify/v1/skew-protection.json` file is written per the
   [Frameworks API](https://docs.netlify.com/build/frameworks/frameworks-api/), telling Netlify's CDN to treat that query
   parameter as a skew protection token for URLs matching `patterns`.
