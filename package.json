@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "workspaces": [
+    "packages/test-utils",
     "packages/angular-runtime",
     "packages/nuxt-module",
     "packages/unplugin-skew-protection",
