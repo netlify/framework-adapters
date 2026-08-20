@@ -140,6 +140,43 @@ describe('applySkewProtectionWebpackPlugin', () => {
     expect(capturedUrls).toEqual([`/assets/${lazyChunkFile}?nfdpl=abc123`])
   })
 
+  test('only wraps the JS chunk-filename function when patterns match JS but not CSS', async () => {
+    const root = await setupFixture()
+
+    const resolved = assertDefined(
+      resolveOptions({
+        paramName: 'nfdpl',
+        patterns: ['.*\\.(js|mjs|cjs)$'],
+        token: 'abc123',
+      }),
+    )
+
+    await compile({
+      context: root,
+      entry: join(root, 'index.js'),
+      mode: 'production',
+      optimization: {
+        minimize: false,
+      },
+      output: {
+        filename: 'main.js',
+        path: join(root, 'dist'),
+        publicPath: '/assets/',
+      },
+      plugins: [
+        {
+          apply(compiler: Compiler) {
+            applySkewProtectionWebpackPlugin(compiler, resolved)
+          },
+        },
+      ],
+    })
+
+    const mainBundle = await readFile(join(root, 'dist', 'main.js'), 'utf8')
+    expect(mainBundle).toContain('__netlifyOrigChunkScriptFilename__')
+    expect(mainBundle).not.toContain('__netlifyOrigChunkCssFilename__')
+  })
+
   test('is a no-op when patterns do not match JS/CSS assets', async () => {
     const root = await setupFixture()
 

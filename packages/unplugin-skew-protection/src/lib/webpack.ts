@@ -18,8 +18,11 @@ export function applySkewProtectionWebpackPlugin(compiler: Compiler, resolved: R
   const regexps = compilePatterns(resolved.patterns)
   const suffix = `?${resolved.paramName}=${encodeURIComponent(resolved.token)}`
 
-  if (matchesAnyPattern('__netlify_probe__.js', regexps) || matchesAnyPattern('__netlify_probe__.css', regexps)) {
-    wrapChunkFilenameFunctions(compiler, suffix)
+  const stampJs = matchesAnyPattern('__netlify_probe__.js', regexps)
+  const stampCss = matchesAnyPattern('__netlify_probe__.css', regexps)
+
+  if (stampJs || stampCss) {
+    wrapChunkFilenameFunctions(compiler, suffix, { stampCss, stampJs })
   }
 
   decorateHtmlWebpackPluginTags(compiler, resolved, regexps)
@@ -67,28 +70,42 @@ function stampAttribute(
   tag.attributes[attributeName] = appendQueryParam(url, resolved.paramName, resolved.token)
 }
 
-function wrapChunkFilenameFunctions(compiler: Compiler, suffix: string) {
+function wrapChunkFilenameFunctions(
+  compiler: Compiler,
+  suffix: string,
+  { stampCss, stampJs }: { stampCss: boolean; stampJs: boolean },
+) {
   class SkewProtectionRuntimeModule extends compiler.webpack.RuntimeModule {
     constructor() {
       super('netlify skew protection', compiler.webpack.RuntimeModule.STAGE_ATTACH)
     }
 
     override generate(): string {
-      return compiler.webpack.Template.asString([
-        `var __netlifySkewSuffix__ = ${JSON.stringify(suffix)};`,
-        `if (typeof ${compiler.webpack.RuntimeGlobals.getChunkScriptFilename} === "function") {`,
-        compiler.webpack.Template.indent([
-          `var __netlifyOrigChunkScriptFilename__ = ${compiler.webpack.RuntimeGlobals.getChunkScriptFilename};`,
-          `${compiler.webpack.RuntimeGlobals.getChunkScriptFilename} = function (chunkId) { return __netlifyOrigChunkScriptFilename__(chunkId) + __netlifySkewSuffix__; };`,
-        ]),
-        '}',
-        `if (typeof ${compiler.webpack.RuntimeGlobals.getChunkCssFilename} === "function") {`,
-        compiler.webpack.Template.indent([
-          `var __netlifyOrigChunkCssFilename__ = ${compiler.webpack.RuntimeGlobals.getChunkCssFilename};`,
-          `${compiler.webpack.RuntimeGlobals.getChunkCssFilename} = function (chunkId) { return __netlifyOrigChunkCssFilename__(chunkId) + __netlifySkewSuffix__; };`,
-        ]),
-        '}',
-      ])
+      const lines = [`var __netlifySkewSuffix__ = ${JSON.stringify(suffix)};`]
+
+      if (stampJs) {
+        lines.push(
+          `if (typeof ${compiler.webpack.RuntimeGlobals.getChunkScriptFilename} === "function") {`,
+          compiler.webpack.Template.indent([
+            `var __netlifyOrigChunkScriptFilename__ = ${compiler.webpack.RuntimeGlobals.getChunkScriptFilename};`,
+            `${compiler.webpack.RuntimeGlobals.getChunkScriptFilename} = function (chunkId) { return __netlifyOrigChunkScriptFilename__(chunkId) + __netlifySkewSuffix__; };`,
+          ]),
+          '}',
+        )
+      }
+
+      if (stampCss) {
+        lines.push(
+          `if (typeof ${compiler.webpack.RuntimeGlobals.getChunkCssFilename} === "function") {`,
+          compiler.webpack.Template.indent([
+            `var __netlifyOrigChunkCssFilename__ = ${compiler.webpack.RuntimeGlobals.getChunkCssFilename};`,
+            `${compiler.webpack.RuntimeGlobals.getChunkCssFilename} = function (chunkId) { return __netlifyOrigChunkCssFilename__(chunkId) + __netlifySkewSuffix__; };`,
+          ]),
+          '}',
+        )
+      }
+
+      return compiler.webpack.Template.asString(lines)
     }
   }
 
@@ -104,12 +121,16 @@ function wrapChunkFilenameFunctions(compiler: Compiler, suffix: string) {
       compilation.addRuntimeModule(chunk, new SkewProtectionRuntimeModule())
     }
 
-    compilation.hooks.runtimeRequirementInTree
-      .for(compiler.webpack.RuntimeGlobals.getChunkScriptFilename)
-      .tap(PLUGIN_NAME, patchChunk)
+    if (stampJs) {
+      compilation.hooks.runtimeRequirementInTree
+        .for(compiler.webpack.RuntimeGlobals.getChunkScriptFilename)
+        .tap(PLUGIN_NAME, patchChunk)
+    }
 
-    compilation.hooks.runtimeRequirementInTree
-      .for(compiler.webpack.RuntimeGlobals.getChunkCssFilename)
-      .tap(PLUGIN_NAME, patchChunk)
+    if (stampCss) {
+      compilation.hooks.runtimeRequirementInTree
+        .for(compiler.webpack.RuntimeGlobals.getChunkCssFilename)
+        .tap(PLUGIN_NAME, patchChunk)
+    }
   })
 }

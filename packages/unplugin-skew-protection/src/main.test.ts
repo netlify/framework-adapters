@@ -1,11 +1,12 @@
 import { env } from 'node:process'
 import { join } from 'node:path'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 
 import { afterEach, describe, expect, test } from 'vitest'
 import { rolldown } from 'rolldown'
 import { rollup, type OutputChunk } from 'rollup'
+import webpack from 'webpack'
 
 import { assertDefined } from './lib/test-utils.js'
 import skewProtection from './main.js'
@@ -108,5 +109,47 @@ describe('skewProtection', () => {
     }
 
     expect(entryChunk.code).toContain('?nfdpl=abc123')
+  })
+
+  test('writes the skew-protection manifest for a webpack build', async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), 'skew-protection-main-webpack-'))
+    dirsToClean.push(baseDir)
+
+    await writeFile(join(baseDir, 'index.js'), `import('./lazy.js').then((m) => console.log(m.default))`)
+    await writeFile(join(baseDir, 'lazy.js'), `module.exports = 'lazy chunk'`)
+
+    await new Promise<void>((resolve, reject) => {
+      webpack(
+        {
+          context: baseDir,
+          entry: join(baseDir, 'index.js'),
+          mode: 'production',
+          optimization: { minimize: false },
+          output: { filename: 'main.js', path: join(baseDir, 'dist') },
+          plugins: [skewProtection.webpack({ baseDir, paramName: 'nfdpl', token: 'abc123' })],
+        },
+        (err, stats) => {
+          if (err) {
+            reject(err)
+            return
+          }
+
+          if (stats?.hasErrors()) {
+            reject(new Error(stats.toString({ errorDetails: true })))
+            return
+          }
+
+          resolve()
+        },
+      )
+    })
+
+    const manifest: unknown = JSON.parse(
+      await readFile(join(baseDir, '.netlify', 'v1', 'skew-protection.json'), 'utf8'),
+    )
+    expect(manifest).toEqual({
+      patterns: ['.*\\.(js|mjs|cjs)$', '.*\\.css$'],
+      sources: [{ type: 'query', name: 'nfdpl' }],
+    })
   })
 })
