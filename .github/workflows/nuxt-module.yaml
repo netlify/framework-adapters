@@ -17,7 +17,7 @@ jobs:
         node-version: ['24']
         include:
           - os: ubuntu-latest
-            node-version: '20.19.0'
+            node-version: '22.12.0'
       fail-fast: false
     steps:
       - run: git config --global core.symlinks true
@@ -42,9 +42,6 @@ jobs:
       - name: Build
         run: npm run build --workspaces
       - name: Lint
-        # skip linting on node 20 due to eslint issues
-        # specifically, TypeError: Object.groupBy is not a function
-        if: matrix.node-version != '20.19.0'
         run: npm run lint -w ./packages/nuxt-module
       - name: Typecheck
         run: npm run test:types -w ./packages/nuxt-module
