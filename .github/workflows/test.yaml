@@ -23,9 +23,8 @@ jobs:
         node-install-version: ['24.15.0']
         include:
           - os: ubuntu-latest
-            # min node-version required by optional native bindings (e.g. @oxc-parser)
-            node-version: '20.19.0'
-            node-install-version: '20.19.0'
+            node-version: '22.12.0'
+            node-install-version: '22.12.0'
       fail-fast: false
     steps:
       # Increasing the maximum number of open files. See:
