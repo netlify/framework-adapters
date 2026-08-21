@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.13.0](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.9...vite-plugin-v2.13.0) (2026-08-20)
+
+
+### Features
+
+* **vite-plugin:** promote `build` options to experimental ([#32](https://github.com/netlify/framework-adapters/issues/32)) ([566da57](https://github.com/netlify/framework-adapters/commit/566da5717eec8fb9e375ab50d96dd36022fae9e4))
+
 ## [2.12.9](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.8...vite-plugin-v2.12.9) (2026-07-17)
 
 
