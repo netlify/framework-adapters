@@ -17,7 +17,7 @@ export interface StaticServer {
 /**
  * Serves `root` over HTTP for the duration of a test. The query string is ignored when
  * resolving a file, which is what makes the skew protection parameter transparent to a
- * static host: `/assets/lazy-abc.js?nfdpl=token` has to serve `/assets/lazy-abc.js`.
+ * static host: `/assets/shared-abc.js?nfdpl=token` has to serve `/assets/shared-abc.js`.
  */
 export async function serveStatic(root: string): Promise<StaticServer> {
   const server = createServer((req, res) => {
