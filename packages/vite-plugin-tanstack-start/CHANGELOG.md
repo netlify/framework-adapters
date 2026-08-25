@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.18](https://github.com/netlify/framework-adapters/compare/vite-plugin-tanstack-start-v1.3.17...vite-plugin-tanstack-start-v1.3.18) (2026-08-25)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @netlify/vite-plugin bumped from 2.12.9 to 3.0.0
+
 ## [1.3.17](https://github.com/netlify/framework-adapters/compare/vite-plugin-tanstack-start-v1.3.16...vite-plugin-tanstack-start-v1.3.17) (2026-07-17)
 
 
