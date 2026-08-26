@@ -16,7 +16,8 @@
     "lint": "eslint --cache",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .",
-    "format:ci": "prettier --check ."
+    "format:ci": "prettier --check .",
+    "test:vite-ecosystem-ci": "COPY_OVERRIDES_TO_FIXTURES=true npm run test -w packages/vite-plugin"
   },
   "keywords": [],
   "license": "MIT",

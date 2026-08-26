@@ -55,7 +55,7 @@
   "author": "Netlify Inc.",
   "dependencies": {
     "@netlify/dev": "^5.0.1",
-    "@netlify/dev-utils": "^5.0.0",
+    "@netlify/dev-utils": "^6.0.1",
     "@nuxt/kit": "^4.4.8",
     "h3": "^1.15.11"
   },
