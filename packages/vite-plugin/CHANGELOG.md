@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/netlify/framework-adapters/compare/vite-plugin-v3.0.0...vite-plugin-v3.0.1) (2026-08-28)
+
+
+### Bug Fixes
+
+* make a change to trigger a patch ([#61](https://github.com/netlify/framework-adapters/issues/61)) ([2ef81f5](https://github.com/netlify/framework-adapters/commit/2ef81f5bc0f25b60b90fe7dce79ca014b010230b))
+
 ## [3.0.0](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.9...vite-plugin-v3.0.0) (2026-08-25)
 
 
