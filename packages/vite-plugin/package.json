@@ -46,7 +46,7 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
-    "@netlify/dev": "^5.0.1",
+    "@netlify/dev": "^5.0.2",
     "@netlify/dev-utils": "^6.0.1",
     "dedent": "^1.7.2"
   },
