@@ -3,7 +3,7 @@
 [![npm version][npm-version-src]][npm-version-href] [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-`@netlify/nuxt` provides local emulation of the Netlify platform directly in `nuxt dev`
+`@netlify/nuxt` provides local emulation of the Netlify platform directly in `nuxt dev`.
 
 ## Features
 
