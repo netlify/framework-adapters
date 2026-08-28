@@ -25,6 +25,19 @@ Vite plugin that emulates Netlify's platform features within your Vite dev serve
 npm install -D @netlify/vite-plugin
 ```
 
+## Usage
+
+Add the plugin to your `vite.config.js` or `vite.config.ts`:
+
+```js
+import { defineConfig } from 'vite'
+import netlify from '@netlify/vite-plugin'
+
+export default defineConfig({
+  plugins: [netlify()],
+})
+```
+
 ## Configuration options
 
 The plugin accepts the following options:
@@ -54,18 +67,5 @@ import netlify from '@netlify/vite-plugin'
 
 export default defineConfig({
   plugins: [netlify({ build: { enabled: true } })],
-})
-```
-
-## Usage
-
-Add the plugin to your `vite.config.js` or `vite.config.ts`:
-
-```js
-import { defineConfig } from 'vite'
-import netlify from '@netlify/vite-plugin'
-
-export default defineConfig({
-  plugins: [netlify()],
 })
 ```
