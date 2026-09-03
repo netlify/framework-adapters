@@ -23,7 +23,7 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: 2.5.6
       - name: Install dependencies
