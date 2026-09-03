@@ -33,7 +33,7 @@ jobs:
         run: sudo ulimit -Sn 65536
         if: "${{ matrix.os == 'macOS-latest' }}"
       - run: git config --global core.symlinks true
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Node.js ${{ matrix.node-install-version }}
