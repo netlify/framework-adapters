@@ -232,6 +232,37 @@ describe('createViteHooks', () => {
     }
   })
 
+  test('does not stamp a dynamic import in an SSR/server build', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'skew-protection-vite-ssr-'))
+
+    try {
+      await writeFile(path.join(root, 'entry.js'), `import('./lazy.js').then((m) => console.log(m.default))`)
+      await writeFile(path.join(root, 'lazy.js'), `export default 'lazy chunk'`)
+
+      const resolved = assertDefined(
+        resolveOptions({
+          paramName: 'nfdpl',
+          token: 'abc123',
+        }),
+      )
+
+      await viteBuild({
+        root,
+        logLevel: 'silent',
+        plugins: [{ name: 'skew-protection', ...createViteHooks(resolved) }],
+        build: {
+          outDir: 'dist',
+          ssr: path.join(root, 'entry.js'),
+        },
+      })
+
+      const output = await readAllFileContents(path.join(root, 'dist'))
+      expect(output).not.toContain('nfdpl')
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
   test('stamps a manualChunks vendor chunk identically in its modulepreload link and its static import', async () => {
     // Regression test: an eagerly imported chunk can be referenced by both a modulepreload tag
     // and a static import. Before this fix, only the preload was stamped, causing the same chunk
