@@ -90,6 +90,34 @@ describe('createRenderChunk', () => {
     expect(await renderChunk(code)).toBeNull()
   })
 
+  test('stamps a static cross-chunk import (e.g. a manualChunks vendor chunk)', async () => {
+    const resolved = assertDefined(resolveOptions({ paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `import { x } from "./vendor-abc123.js";\nconsole.log(x);`
+    const result = assertDefined(await renderChunk(code))
+
+    expect(result.code).toBe(`import { x } from "./vendor-abc123.js?nfdpl=abc123";\nconsole.log(x);`)
+  })
+
+  test('stamps a static cross-chunk import using single quotes', async () => {
+    const resolved = assertDefined(resolveOptions({ paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `import { x } from './vendor-abc123.js';\nconsole.log(x);`
+    const result = assertDefined(await renderChunk(code))
+
+    expect(result.code).toBe(`import { x } from "./vendor-abc123.js?nfdpl=abc123";\nconsole.log(x);`)
+  })
+
+  test('does not stamp import.meta', async () => {
+    const resolved = assertDefined(resolveOptions({ paramName: 'nfdpl', token: 'abc123' }))
+    const renderChunk = createRenderChunk(resolved)
+
+    const code = `console.log(import.meta.url);`
+    expect(await renderChunk(code)).toBeNull()
+  })
+
   test('produces valid JavaScript for a specifier containing an escaped quote', async () => {
     const resolved = assertDefined(resolveOptions({ paramName: 'nfdpl', token: 'abc123' }))
     const renderChunk = createRenderChunk(resolved)

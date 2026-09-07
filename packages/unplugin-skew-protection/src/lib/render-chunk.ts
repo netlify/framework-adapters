@@ -16,12 +16,13 @@ interface NormalizedSourceMap {
 type RenderChunkResult = { code: string; map: NormalizedSourceMap } | null
 export type RenderChunkHook = (code: string) => Promise<RenderChunkResult>
 
-// Stamps dynamic `import()` call sites in already-rendered chunk code
+// Stamps dynamic `import()` call sites, and static cross-chunk `import ... from` specifiers, in
+// already-rendered chunk code
 export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): RenderChunkHook {
   const regexps = compilePatterns(resolved.patterns)
 
   return async (code) => {
-    if (!code.includes('import(')) {
+    if (!code.includes('import')) {
       return null
     }
 
@@ -31,11 +32,11 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
     let magicString: MagicString | undefined
 
     for (const imp of imports) {
-      // `d > -1` marks a dynamic `import(...)` call site (as opposed to a static import or
-      // `import.meta`); `n` is only populated when the specifier is a plain string literal, which
-      // excludes comments, string/template literals elsewhere in the code, and non-literal
-      // specifiers (e.g. `import(someVariable)`) that can't be matched against `patterns`.
-      if (imp.d === -1 || imp.n === undefined) {
+      // At this stage, static imports only point to emitted chunks; source imports have already
+      // been inlined. Those chunks may also have a modulepreload tag, so leaving these imports
+      // unstamped would fetch them twice. Exclude `import.meta` (`d === -2`) and non-literal
+      // specifiers, since only plain string literals can be matched against `patterns`.
+      if (imp.d === -2 || imp.n === undefined) {
         continue
       }
 
@@ -49,10 +50,17 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
 
       const stamped = appendQueryParam(specifier, resolved.paramName, resolved.token)
 
-      // For dynamic import(), s/e include the quotes, while imp.n is decoded.
-      // Re-serialize it with JSON.stringify to safely handle escaped quotes and backslashes.
+
+      // Dynamic import() ranges include the quotes, but static import ranges only cover the
+      // specifier. Expand the range to include the quotes so we replace the whole string instead
+      // of nesting a new quoted string inside it.
+      const isDynamic = imp.d > -1
+      const start = isDynamic ? imp.s : imp.s - 1
+      const end = isDynamic ? imp.e : imp.e + 1
+
+      // Re-serialize with JSON.stringify to safely handle escaped quotes and backslashes.
       magicString ??= new MagicString(code)
-      magicString.overwrite(imp.s, imp.e, JSON.stringify(stamped))
+      magicString.overwrite(start, end, JSON.stringify(stamped))
     }
 
     if (!magicString) {

@@ -231,4 +231,70 @@ describe('createViteHooks', () => {
       await rm(root, { recursive: true, force: true })
     }
   })
+
+  test('stamps a manualChunks vendor chunk identically in its modulepreload link and its static import', async () => {
+    // Regression test: an eagerly imported chunk can be referenced by both a modulepreload tag
+    // and a static import. Before this fix, only the preload was stamped, causing the same chunk
+    // to be fetched twice—once via the preload and again via the import.
+    const root = await mkdtemp(path.join(tmpdir(), 'skew-protection-vite-'))
+
+    try {
+      await writeFile(
+        path.join(root, 'index.html'),
+        `<html><body><script type="module" src="/entry.js"></script></body></html>`,
+      )
+
+      // A function body (rather than a literal constant) so Rollup can't fold the import away
+      // entirely and must keep it as a genuine cross-chunk static import.
+      await writeFile(
+        path.join(root, 'entry.js'),
+        `import { getValue } from './vendor-lib.js'\nconsole.log(getValue())`,
+      )
+
+      await writeFile(path.join(root, 'vendor-lib.js'), `export function getValue() { return Date.now() }`)
+
+      const resolved = assertDefined(
+        resolveOptions({
+          paramName: 'nfdpl',
+          token: 'abc123',
+        }),
+      )
+
+      await viteBuild({
+        root,
+        logLevel: 'silent',
+        plugins: [{ name: 'skew-protection', ...createViteHooks(resolved) }],
+        build: {
+          outDir: 'dist',
+          minify: false,
+          rollupOptions: {
+            output: {
+              manualChunks(id: string) {
+                if (id.includes('vendor-lib')) {
+                  return 'vendor'
+                }
+                return undefined
+              },
+            },
+          },
+        },
+      })
+
+      const html = await readFile(path.join(root, 'dist', 'index.html'), 'utf8')
+      const preloadMatch = /rel="modulepreload"[^>]*href="([^"]+)"/.exec(html)
+      const preloadHref = assertDefined(assertDefined(preloadMatch)[1])
+      expect(preloadHref).toContain('?nfdpl=abc123')
+
+      const assetFiles = await readdir(path.join(root, 'dist', 'assets'))
+      const entryFile = assertDefined(assetFiles.find((file) => file.endsWith('.js') && !file.startsWith('vendor')))
+      const entryCode = await readFile(path.join(root, 'dist', 'assets', entryFile), 'utf8')
+
+      // Preload hrefs are absolute while static imports are relative. Compare filename + query so
+      // both references to the same chunk are treated as the same URL and only fetched once.
+      const stampedFilename = assertDefined(preloadHref.split('/').pop())
+      expect(entryCode).toContain(`./${stampedFilename}`)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
 })
