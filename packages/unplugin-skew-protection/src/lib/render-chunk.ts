@@ -50,7 +50,6 @@ export function createRenderChunk(resolved: ResolvedSkewProtectionOptions): Rend
 
       const stamped = appendQueryParam(specifier, resolved.paramName, resolved.token)
 
-
       // Dynamic import() ranges include the quotes, but static import ranges only cover the
       // specifier. Expand the range to include the quotes so we replace the whole string instead
       // of nesting a new quoted string inside it.
