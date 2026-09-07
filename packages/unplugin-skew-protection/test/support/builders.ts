@@ -23,13 +23,46 @@ export const TOKEN = 'e2e-token-123'
 
 const FIXTURE_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures')
 
+export interface FixturePage {
+  /** Base name shared by the page's HTML document and its entry module. */
+  name: string
+  /** Path to request from the static server. */
+  path: string
+  /** `#app` text content once the page's dynamically imported chunk has evaluated. */
+  text: string
+}
+
+/**
+ * The fixture ships two pages whose entries import a common module, so every build under test has
+ * to emit two HTML documents, two entry chunks, and one chunk shared between them — the shared
+ * chunk being the case a single-page fixture cannot reach at all.
+ *
+ * `text` is what `test/fixtures/shared-static.js` leaves in `#app` once the page has settled, so
+ * matching it proves both shared chunks -- the statically imported one and the dynamically imported
+ * one -- evaluated in the browser.
+ */
+export const PAGES: FixturePage[] = [
+  {
+    name: 'index',
+    path: '/',
+    text: 'index: shared static chunk loaded, shared dynamic chunk loaded',
+  },
+  {
+    name: 'second',
+    path: '/second.html',
+    text: 'second: shared static chunk loaded, shared dynamic chunk loaded',
+  },
+]
+
 export interface BundlerCase {
   /**
-   * Asset paths that are expected to be served *without* the skew protection parameter.
+   * Asset paths that are expected to be served *without* the skew protection parameter, deduped
+   * and sorted across every page in `PAGES`.
    *
-   * Only Vite and webpack expose an HTML hook to this plugin, so only they can pin the
-   * initial `<script>`. Plain Rollup and Rolldown emit no HTML, so the entry tag in a
-   * hand-authored page stays unpinned and only the dynamic import is stamped.
+   * Every bundler here reaches HTML through this plugin — Vite via `transformIndexHtml`, webpack
+   * via html-webpack-plugin's tag hook, Rollup and Rolldown via the HTML that
+   * `@rollup/plugin-html` emits — so a build with nothing left unpinned is the expectation, and
+   * anything listed is a gap the plugin has yet to close.
    */
   expectedUnstamped: string[]
   build: (root: string, outDir: string) => Promise<void>
@@ -45,6 +78,22 @@ export async function createFixture(): Promise<string> {
   return root
 }
 
+/**
+ * Reads a fixture page and strips the hand-authored `<script>` tag that points at its entry
+ * module, leaving markup a bundler can inject its own hashed tag into. Reusing the fixture page
+ * rather than generating markup from scratch keeps every build serving the same document — the
+ * `#app` mount point included — so the browser assertions do not have to know which bundler
+ * produced the page.
+ */
+async function readPageTemplate(root: string, page: FixturePage): Promise<string> {
+  const html = await readFile(join(root, `${page.name}.html`), 'utf8')
+  return html.replace(/\s*<script\b[^>]*><\/script>/i, '')
+}
+
+function injectScripts(template: string, tags: string[]): string {
+  return template.replace('</body>', `  ${tags.join('\n    ')}\n  </body>`)
+}
+
 export const BUNDLERS: BundlerCase[] = [
   {
     name: 'vite',
@@ -54,7 +103,13 @@ export const BUNDLERS: BundlerCase[] = [
         root,
         logLevel: 'silent',
         plugins: [vitePlugin({ baseDir: root, token: TOKEN })],
-        build: { outDir, emptyOutDir: true },
+        build: {
+          outDir,
+          emptyOutDir: true,
+          // Vite treats only `index.html` as an entry implicitly, so every other page has to be
+          // declared for it to be crawled and emitted at all.
+          rollupOptions: { input: PAGES.map((page) => join(root, `${page.name}.html`)) },
+        },
       })
     },
   },
@@ -63,10 +118,10 @@ export const BUNDLERS: BundlerCase[] = [
     expectedUnstamped: [],
     build: async (root, outDir) => {
       const bundle = await rollup({
-        input: join(root, 'entry.js'),
-        plugins: [rollupHtmlPlugin(), rollupPlugin({ baseDir: root, token: TOKEN })],
+        input: fixtureInput(root),
+        plugins: [...(await pageHtmlPlugins(root)), rollupPlugin({ baseDir: root, token: TOKEN })],
       })
-      await bundle.write({ dir: outDir, format: 'es', entryFileNames: 'entry.js', chunkFileNames: '[name].js' })
+      await bundle.write({ dir: outDir, format: 'es', entryFileNames: '[name].js', chunkFileNames: '[name].js' })
       await bundle.close()
     },
   },
@@ -75,10 +130,10 @@ export const BUNDLERS: BundlerCase[] = [
     expectedUnstamped: [],
     build: async (root, outDir) => {
       const bundle = await rolldown({
-        input: join(root, 'entry.js'),
-        plugins: [rollupHtmlPlugin(), rolldownPlugin({ baseDir: root, token: TOKEN })],
+        input: fixtureInput(root),
+        plugins: [...(await pageHtmlPlugins(root)), rolldownPlugin({ baseDir: root, token: TOKEN })],
       })
-      await bundle.write({ dir: outDir, format: 'es', entryFileNames: 'entry.js', chunkFileNames: '[name].js' })
+      await bundle.write({ dir: outDir, format: 'es', entryFileNames: '[name].js', chunkFileNames: '[name].js' })
       await bundle.close()
     },
   },
@@ -86,21 +141,38 @@ export const BUNDLERS: BundlerCase[] = [
     name: 'webpack',
     expectedUnstamped: [],
     build: async (root, outDir) => {
-      // html-webpack-plugin injects its own tag for the entry, so the template must not carry
-      // the fixture's `<script src="./entry.js">` as well.
-      const template = join(root, 'template.html')
-      const html = await readFile(join(root, 'index.html'), 'utf8')
-      await writeFile(template, html.replace(/\s*<script\b[^>]*><\/script>/i, ''))
+      // html-webpack-plugin renders from a template file, so each page's stripped markup has to be
+      // written back out before the compiler starts.
+      const templates = await Promise.all(
+        PAGES.map(async (page) => {
+          const template = join(root, `template-${page.name}.html`)
+          await writeFile(template, await readPageTemplate(root, page))
+          return { page, template }
+        }),
+      )
 
       await new Promise<void>((resolve, reject) => {
         webpack(
           {
             context: root,
-            entry: join(root, 'entry.js'),
+            entry: fixtureInput(root),
             mode: 'production',
-            optimization: { minimize: false },
-            output: { chunkFilename: '[name].chunk.js', filename: 'main.js', path: outDir },
-            plugins: [new HtmlWebpackPlugin({ template }), webpackPlugin({ baseDir: root, token: TOKEN })],
+            optimization: {
+              minimize: false,
+              // Production webpack splits only async chunks by default, and its 20 kB `minSize`
+              // floor would keep this fixture's tiny shared module duplicated into both entry
+              // bundles. Both are relaxed so the shared chunk lands in a file of its own, which is
+              // the whole point of the two-page fixture.
+              splitChunks: { chunks: 'all', minSize: 0 },
+            },
+            output: { chunkFilename: '[name].chunk.js', filename: '[name].js', path: outDir },
+            plugins: [
+              ...templates.map(
+                ({ page, template }) =>
+                  new HtmlWebpackPlugin({ chunks: [page.name], filename: `${page.name}.html`, template }),
+              ),
+              webpackPlugin({ baseDir: root, token: TOKEN }),
+            ],
           },
           (err, stats) => {
             if (err) {
@@ -120,3 +192,32 @@ export const BUNDLERS: BundlerCase[] = [
     },
   },
 ]
+
+/**
+ * Named inputs, so the chunk each page has to load back is identifiable by name in both the
+ * Rollup/Rolldown HTML template and webpack's `chunks` filter.
+ */
+function fixtureInput(root: string): Record<string, string> {
+  return Object.fromEntries(PAGES.map((page) => [page.name, join(root, `${page.name}.js`)]))
+}
+
+async function pageHtmlPlugins(root: string) {
+  return Promise.all(
+    PAGES.map(async (page) => {
+      const template = await readPageTemplate(root, page)
+
+      return rollupHtmlPlugin({
+        fileName: `${page.name}.html`,
+        // The default template lists every entry chunk on a single page, so each instance filters
+        // the bundle down to the chunk built from its own entry.
+        template: ({ files }) =>
+          injectScripts(
+            template,
+            files.js
+              .filter((file) => file.type === 'chunk' && file.isEntry && file.name === page.name)
+              .map((file) => `<script type="module" src="./${file.fileName}"></script>`),
+          ),
+      })
+    }),
+  )
+}
