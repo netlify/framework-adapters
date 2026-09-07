@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.0.1](https://github.com/netlify/framework-adapters/compare/vite-plugin-v3.0.0...vite-plugin-v3.0.1) (2026-08-28)
+
+
+### Bug Fixes
+
+* make a change to trigger a patch ([#61](https://github.com/netlify/framework-adapters/issues/61)) ([2ef81f5](https://github.com/netlify/framework-adapters/commit/2ef81f5bc0f25b60b90fe7dce79ca014b010230b))
+
+## [3.0.0](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.9...vite-plugin-v3.0.0) (2026-08-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* require Node.js 22.12+ ([#48](https://github.com/netlify/framework-adapters/issues/48))
+
+### Features
+
+* require Node.js 22.12+ ([#48](https://github.com/netlify/framework-adapters/issues/48)) ([b5b08cb](https://github.com/netlify/framework-adapters/commit/b5b08cb09680875b69f5f2a5ef40f44f3e91862e))
+* **vite-plugin:** promote `build` options to experimental ([#32](https://github.com/netlify/framework-adapters/issues/32)) ([566da57](https://github.com/netlify/framework-adapters/commit/566da5717eec8fb9e375ab50d96dd36022fae9e4))
+
 ## [2.12.9](https://github.com/netlify/framework-adapters/compare/vite-plugin-v2.12.8...vite-plugin-v2.12.9) (2026-07-17)
 
 
