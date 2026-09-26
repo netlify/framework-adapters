@@ -24,7 +24,7 @@ jobs:
         include:
           - os: ubuntu-latest
             node-version: '22.12.0'
-            node-install-version: '22.12.0'
+            node-install-version: '22.22.0'
       fail-fast: false
     steps:
       # Increasing the maximum number of open files. See:
@@ -42,8 +42,8 @@ jobs:
           node-version: ${{ matrix.node-install-version }}
           cache: 'npm'
       - name: Set up npm
-        # npm 12 doesn't support Node.js 22.12, so the minimum-version job keeps the bundled npm.
-        if: ${{ matrix.node-install-version != '22.12.0' }}
+        # npm 12 requires Node.js ^22.22.2, so the minimum-version job keeps the bundled npm.
+        if: ${{ matrix.node-install-version != '22.22.0' }}
         uses: ./.github/actions/setup-npm
       - name: Setup Deno
         uses: denoland/setup-deno@v1
