@@ -4,9 +4,14 @@ import { join } from 'node:path'
 import { URL } from 'node:url'
 import { promisify } from 'node:util'
 
-import normalizePackageData, { type Package } from 'normalize-package-data'
-
 const exec = promisify(originalExec)
+
+interface Package {
+  name: string
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  overrides?: Record<string, string>
+}
 
 type MonorepoPackage = Package & { workspaces?: string[] }
 
@@ -38,10 +43,7 @@ const packages = await Promise.all(
  * needs to be self-contained to be deployable to Netlify (i.e. it can't have symlinks).
  */
 const prepareDeps = async (cwd: string): Promise<void> => {
-  const packageJson = JSON.parse(await readFile(`${cwd}/package.json`, 'utf-8')) as Package & {
-    overrides?: Record<string, string>
-  }
-  normalizePackageData(packageJson)
+  const packageJson = JSON.parse(await readFile(`${cwd}/package.json`, 'utf-8')) as Package
   packageJson.overrides ??= {}
   const { dependencies = {}, devDependencies = {} } = packageJson
   for (const pkg of packages) {
