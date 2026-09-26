@@ -10,11 +10,12 @@
   "scripts": {
     "build": "echo 'No build'",
     "test": "vitest run --passWithNoTests",
-    "dev": "tsc --noEmit --watch"
+    "typecheck": "tsgo --noEmit",
+    "dev": "tsgo --noEmit --watch"
   },
   "license": "MIT",
   "dependencies": {
-    "js-image-generator": "^1.0.4"
+    "jpeg-js": "^0.4.4"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",

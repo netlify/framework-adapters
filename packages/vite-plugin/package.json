@@ -16,6 +16,7 @@
     "build": "tsdown",
     "prepack": "npm run build",
     "test": "vitest run",
+    "typecheck": "tsgo --noEmit",
     "test:dev": "vitest",
     "test:ci": "vitest run",
     "dev": "tsdown --watch",

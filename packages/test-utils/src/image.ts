@@ -1,23 +1,12 @@
-import { generateImage as generateImageCallback } from 'js-image-generator'
+import { randomBytes } from 'node:crypto'
 
-/* eslint-disable n/no-unsupported-features/node-builtins */
+import { encode } from 'jpeg-js'
 
 /**
  * Returns a generated random-noise JPEG image with the specified dimensions.
  */
-export async function generateImage(width: number, height: number): Promise<Buffer> {
-  return new Promise<Buffer>((resolve, reject) => {
-    generateImageCallback(width, height, 80, (error, image) => {
-      if (error) {
-        reject(error)
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const imageBuffer = image.data as Buffer
-
-        resolve(imageBuffer)
-      }
-    })
-  })
+export function generateImage(width: number, height: number): Promise<Buffer> {
+  return Promise.resolve(encode({ data: randomBytes(width * height * 4), width, height }, 80).data)
 }
 
 /**

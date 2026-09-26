@@ -6,7 +6,7 @@ import js from 'dedent'
 import type { Plugin, ResolvedConfig, Rollup } from 'vite'
 
 import { createLoggerFromViteLogger } from './logger.js'
-import { version, name } from '../../package.json'
+import packageJson from '../../package.json' with { type: 'json' }
 
 // https://docs.netlify.com/frameworks-api/#netlify-v1-functions
 const NETLIFY_FUNCTIONS_DIR = '.netlify/v1/functions'
@@ -35,7 +35,7 @@ export default serverEntrypoint.fetch;
 
 export const config = {
   name: "${displayName}",
-  generator: "${name}@${version}",
+  generator: "${packageJson.name}@${packageJson.version}",
   path: "/*",
   preferStatic: true,
 };
