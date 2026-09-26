@@ -1,0 +1,9 @@
+name: Set up npm
+description: Installs the npm version pinned in the root package.json's `devEngines.packageManager`
+
+runs:
+  using: composite
+  steps:
+    # `setup-node` only provides the npm bundled with Node.js, and no Node.js release bundles npm 12 yet.
+    - shell: bash
+      run: npm install --global "npm@$(node -p "require('./package.json').devEngines.packageManager.version")"

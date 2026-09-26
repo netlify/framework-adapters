@@ -20,6 +20,8 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
+      - name: Set up npm
+        uses: ./.github/actions/setup-npm
       - name: Install dependencies
         run: npm ci
       - name: Check formatting

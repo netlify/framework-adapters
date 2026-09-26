@@ -43,6 +43,9 @@ jobs:
           check-latest: true
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.releases_created || github.event_name == 'workflow_dispatch' }}
+      - name: Set up npm
+        if: ${{ steps.release.outputs.releases_created || github.event_name == 'workflow_dispatch' }}
+        uses: ./.github/actions/setup-npm
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
