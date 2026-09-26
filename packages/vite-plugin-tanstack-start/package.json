@@ -13,12 +13,12 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsup-node",
+    "build": "tsdown",
     "prepack": "npm run build",
     "test": "vitest run",
     "test:dev": "vitest",
     "test:ci": "vitest run",
-    "dev": "tsup-node --watch",
+    "dev": "tsdown --watch",
     "publint": "npx -y publint --strict"
   },
   "keywords": [
@@ -45,7 +45,7 @@
     "normalize-package-data": "^8.0.0",
     "playwright": "^1.61.0",
     "semver": "^7.8.4",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.23.0",
     "vite": "^8.0.16",
     "vitest": "^4.1.9"
   },
