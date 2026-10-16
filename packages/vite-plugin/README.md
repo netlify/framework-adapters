@@ -38,6 +38,9 @@ export default defineConfig({
 })
 ```
 
+When building on Netlify, the plugin also enables
+[skew protection](https://docs.netlify.com/deploy/deploy-overview/#skew-protection) for frameworks that support it.
+
 ## Configuration options
 
 The plugin accepts the following options:

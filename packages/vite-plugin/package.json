@@ -39,6 +39,7 @@
   "devDependencies": {
     "@netlify/framework-adapters-test-utils": "*",
     "@types/node": "^20.19.43",
+    "@vitejs/deployment-metadata-types": "file:../../../../deployment-metadata/packages/deployment-metadata-types",
     "normalize-package-data": "^8.0.0",
     "playwright": "^1.61.0",
     "tsup": "^8.5.1",
