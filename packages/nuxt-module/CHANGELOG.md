@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.1](https://github.com/netlify/framework-adapters/compare/nuxt-v1.0.0...nuxt-v1.0.1) (2026-08-28)
+
+
+### Bug Fixes
+
+* make a change to trigger a patch ([#61](https://github.com/netlify/framework-adapters/issues/61)) ([2ef81f5](https://github.com/netlify/framework-adapters/commit/2ef81f5bc0f25b60b90fe7dce79ca014b010230b))
+
+## [1.0.0](https://github.com/netlify/framework-adapters/compare/nuxt-v0.3.9...nuxt-v1.0.0) (2026-08-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* require Node.js 22.12+ ([#48](https://github.com/netlify/framework-adapters/issues/48))
+
+### Features
+
+* require Node.js 22.12+ ([#48](https://github.com/netlify/framework-adapters/issues/48)) ([b5b08cb](https://github.com/netlify/framework-adapters/commit/b5b08cb09680875b69f5f2a5ef40f44f3e91862e))
+
 ## [0.3.9](https://github.com/netlify/framework-adapters/compare/nuxt-v0.3.8...nuxt-v0.3.9) (2026-07-17)
 
 

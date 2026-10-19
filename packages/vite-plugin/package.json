@@ -1,10 +1,10 @@
 {
   "name": "@netlify/vite-plugin",
-  "version": "2.12.9",
+  "version": "3.0.1",
   "description": "Vite plugin with a local emulation of the Netlify environment",
   "type": "module",
   "engines": {
-    "node": "^20.6.1 || >=22"
+    "node": ">=22.12.0"
   },
   "main": "./dist/main.js",
   "exports": "./dist/main.js",
@@ -37,15 +37,17 @@
   },
   "author": "Netlify Inc.",
   "devDependencies": {
+    "@netlify/framework-adapters-test-utils": "*",
     "@types/node": "^20.19.43",
+    "normalize-package-data": "^8.0.0",
     "playwright": "^1.61.0",
     "tsup": "^8.5.1",
     "vite": "^6.4.3",
     "vitest": "^4.1.9"
   },
   "dependencies": {
-    "@netlify/dev": "^4.18.7",
-    "@netlify/dev-utils": "^4.4.6",
+    "@netlify/dev": "^5.0.2",
+    "@netlify/dev-utils": "^6.0.1",
     "dedent": "^1.7.2"
   },
   "peerDependencies": {

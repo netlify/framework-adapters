@@ -25,6 +25,19 @@ Vite plugin that emulates Netlify's platform features within your Vite dev serve
 npm install -D @netlify/vite-plugin
 ```
 
+## Usage
+
+Add the plugin to your `vite.config.js` or `vite.config.ts`:
+
+```js
+import { defineConfig } from 'vite'
+import netlify from '@netlify/vite-plugin'
+
+export default defineConfig({
+  plugins: [netlify()],
+})
+```
+
 ## Configuration options
 
 The plugin accepts the following options:
@@ -39,15 +52,20 @@ The plugin accepts the following options:
 - `redirects`: Configure URL redirects
 - `staticFiles`: Configure static file serving
 
-## Usage
+### EXPERIMENTAL: Building your app for deployment
 
-Add the plugin to your `vite.config.js` or `vite.config.ts`:
+The `build` options prepare your app's server build for deployment to Netlify, so you don't need a framework-specific
+adapter or plugin. They're currently supported for TanStack Start and SolidStart 2 projects.
+
+- `build.enabled` (boolean, default: `false`): Prepare the server build for deployment to Netlify
+- `build.displayName` (string, default: `@netlify/vite-plugin server handler`): A display name for the serverless
+  function or edge function deployed to Netlify
 
 ```js
 import { defineConfig } from 'vite'
 import netlify from '@netlify/vite-plugin'
 
 export default defineConfig({
-  plugins: [netlify()],
+  plugins: [netlify({ build: { enabled: true } })],
 })
 ```

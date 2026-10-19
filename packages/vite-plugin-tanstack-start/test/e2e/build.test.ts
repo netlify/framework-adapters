@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { Fixture } from '@netlify/dev-utils'
+import { Fixture } from '@netlify/framework-adapters-test-utils'
 import { type Browser, type Page, chromium } from 'playwright'
 import semver from 'semver'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
