@@ -21,7 +21,7 @@ describe.runIf(isSupportedNode && !isWindows && !skipLiveTests)('build output wh
   let fixture: Fixture
   let baseUrl: string
   beforeAll(async () => {
-    fixture = new Fixture().fromDirectory(path.join(FIXTURES_DIR, 'start-basic-rc'))
+    fixture = new Fixture().fromDirectory(path.join(FIXTURES_DIR, 'start-basic-1.168.61'))
     const fixtureRoot = await fixture.create()
     const { url } = await deploySite(fixtureRoot)
     baseUrl = url
