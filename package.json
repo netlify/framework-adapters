@@ -12,7 +12,6 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "node scripts/parallel.js npm run dev",
-    "prepare": "husky",
     "lint": "eslint --cache",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .",
@@ -29,7 +28,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-n": "17.21.3",
     "execa": "^9.6.1",
-    "husky": "^9.1.7",
     "prettier": "^3.8.4",
     "typescript-eslint": "^8.61.1"
   },
