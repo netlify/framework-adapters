@@ -44,7 +44,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.releases_created || github.event_name == 'workflow_dispatch' }}
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: 2.5.6
       - run: npm ci
