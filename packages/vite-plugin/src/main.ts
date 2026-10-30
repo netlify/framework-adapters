@@ -7,6 +7,7 @@ import type { Plugin } from 'vite'
 
 import { createLoggerFromViteLogger, type Logger } from './lib/logger.js'
 import { createBuildPlugin } from './lib/build.js'
+import { createSkewProtectionPlugin } from './lib/skew-protection.js'
 
 export interface NetlifyPluginOptions extends Features {
   /**
@@ -142,7 +143,7 @@ export default function netlify(options: NetlifyPluginOptions = {}): any {
   }
 
   const { enabled, ...buildOptions } = options.build ?? {}
-  return [devPlugin, ...(enabled === true ? [createBuildPlugin(buildOptions)] : [])]
+  return [devPlugin, ...(enabled === true ? [createBuildPlugin(buildOptions)] : []), createSkewProtectionPlugin()]
 }
 
 const warnOnDuplicatePlugin = (logger: Logger) => {
