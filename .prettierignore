@@ -1,4 +1,5 @@
 .circleci
+.nuxt
 dist
 coverage
 CHANGELOG.md
