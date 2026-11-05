@@ -32,7 +32,4 @@ jobs:
       - name: Build
         run: npm run build --workspaces=true
       - name: Publish prereleases
-        run: |
-          npm query .workspace | jq -er '.[] | select(.private != true) | .location' > "$RUNNER_TEMP/pkg-pr-new-workspaces"
-          mapfile -t workspaces < "$RUNNER_TEMP/pkg-pr-new-workspaces"
-          npm exec -- pkg-pr-new publish "${workspaces[@]}"
+        run: npm exec -- pkg-pr-new publish './packages/*'
