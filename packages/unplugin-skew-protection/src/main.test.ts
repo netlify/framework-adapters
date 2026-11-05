@@ -1,0 +1,157 @@
+import { env } from 'node:process'
+import { join } from 'node:path'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+
+import { afterEach, describe, expect, test } from 'vitest'
+import { rolldown } from 'rolldown'
+import { rollup, type OutputChunk } from 'rollup'
+import webpack from 'webpack'
+
+import { assertDefined } from './lib/test-utils.js'
+import rolldownSkewProtection from './rolldown.js'
+import rollupSkewProtection from './rollup.js'
+import webpackSkewProtection from './webpack.js'
+
+const isEntryChunk = (chunk: { type: string; isEntry?: boolean }): chunk is OutputChunk =>
+  chunk.type === 'chunk' && Boolean(chunk.isEntry)
+
+describe('unpluginFactory, exercised through each bundler entry point', () => {
+  const dirsToClean: string[] = []
+  const originalToken = env.NETLIFY_SKEW_PROTECTION_TOKEN
+
+  afterEach(async () => {
+    await Promise.all(dirsToClean.splice(0).map((dir) => rm(dir, { recursive: true, force: true })))
+    if (originalToken === undefined) {
+      delete env.NETLIFY_SKEW_PROTECTION_TOKEN
+    } else {
+      env.NETLIFY_SKEW_PROTECTION_TOKEN = originalToken
+    }
+  })
+
+  test('is a no-op rollup plugin when no token is configured', async () => {
+    delete env.NETLIFY_SKEW_PROTECTION_TOKEN
+
+    const virtualPlugin = {
+      name: 'virtual',
+      resolveId: (id: string) => (id === 'entry.js' ? id : null),
+      load: (id: string) => (id === 'entry.js' ? `console.log('hi')` : null),
+    }
+
+    const bundle = await rollup({ input: 'entry.js', plugins: [virtualPlugin, rollupSkewProtection()] })
+    const { output } = await bundle.generate({ format: 'es' })
+    const entryChunk = assertDefined(output.find(isEntryChunk))
+    expect(entryChunk.code).not.toContain('nfdpl')
+  })
+
+  test('writes the skew-protection manifest and stamps dynamic imports for a rollup build', async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), 'skew-protection-main-'))
+    dirsToClean.push(baseDir)
+
+    const virtualFiles: Record<string, string> = {
+      'entry.js': `import('lazy.js').then((m) => console.log(m.default))`,
+      'lazy.js': `export default 'lazy chunk'`,
+    }
+    const virtualPlugin = {
+      name: 'virtual',
+      resolveId(id: string) {
+        const key = id.replace(/^\.\//, '')
+        return key in virtualFiles ? key : null
+      },
+      load(id: string) {
+        return virtualFiles[id]
+      },
+    }
+
+    const bundle = await rollup({
+      input: 'entry.js',
+      plugins: [virtualPlugin, rollupSkewProtection({ token: 'abc123', paramName: 'nfdpl', baseDir })],
+    })
+    const { output } = await bundle.write({ format: 'es', dir: join(baseDir, 'dist') })
+
+    const entryChunk = assertDefined(output.find(isEntryChunk))
+    expect(entryChunk.code).toContain('?nfdpl=abc123')
+
+    const manifest: unknown = JSON.parse(
+      await readFile(join(baseDir, '.netlify', 'v1', 'skew-protection.json'), 'utf8'),
+    )
+    expect(manifest).toEqual({
+      patterns: ['.*\\.(js|mjs|cjs)$', '.*\\.css$'],
+      sources: [{ type: 'query', name: 'nfdpl' }],
+    })
+  })
+
+  test('stamps dynamic imports for a Rolldown build', async () => {
+    const virtualFiles: Record<string, string> = {
+      'entry.js': `import('lazy.js').then((m) => console.log(m.default))`,
+      'lazy.js': `export default 'lazy chunk'`,
+    }
+
+    const virtualPlugin = {
+      load(id: string) {
+        return virtualFiles[id]
+      },
+      name: 'virtual',
+      resolveId(id: string) {
+        const key = id.replace(/^\.\//, '')
+        return key in virtualFiles ? key : null
+      },
+    }
+
+    const bundle = await rolldown({
+      input: 'entry.js',
+      plugins: [virtualPlugin, rolldownSkewProtection({ token: 'abc123', paramName: 'nfdpl' })],
+    })
+
+    const { output } = await bundle.generate({ format: 'es' })
+
+    // Rolldown's OutputChunk is unrelated to Rollup's guard, so assert the minimal shape needed.
+    const entryChunk = assertDefined(output.find((chunk) => chunk.type === 'chunk' && chunk.isEntry)) as {
+      code: string
+    }
+
+    expect(entryChunk.code).toContain('?nfdpl=abc123')
+  })
+
+  test('writes the skew-protection manifest for a webpack build', async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), 'skew-protection-main-webpack-'))
+    dirsToClean.push(baseDir)
+
+    await writeFile(join(baseDir, 'index.js'), `import('./lazy.js').then((m) => console.log(m.default))`)
+    await writeFile(join(baseDir, 'lazy.js'), `module.exports = 'lazy chunk'`)
+
+    await new Promise<void>((resolve, reject) => {
+      webpack(
+        {
+          context: baseDir,
+          entry: join(baseDir, 'index.js'),
+          mode: 'production',
+          optimization: { minimize: false },
+          output: { filename: 'main.js', path: join(baseDir, 'dist') },
+          plugins: [webpackSkewProtection({ baseDir, paramName: 'nfdpl', token: 'abc123' })],
+        },
+        (err, stats) => {
+          if (err) {
+            reject(err)
+            return
+          }
+
+          if (stats?.hasErrors()) {
+            reject(new Error(stats.toString({ errorDetails: true })))
+            return
+          }
+
+          resolve()
+        },
+      )
+    })
+
+    const manifest: unknown = JSON.parse(
+      await readFile(join(baseDir, '.netlify', 'v1', 'skew-protection.json'), 'utf8'),
+    )
+    expect(manifest).toEqual({
+      patterns: ['.*\\.(js|mjs|cjs)$', '.*\\.css$'],
+      sources: [{ type: 'query', name: 'nfdpl' }],
+    })
+  })
+})

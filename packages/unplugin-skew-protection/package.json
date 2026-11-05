@@ -1,0 +1,87 @@
+{
+  "name": "@netlify/unplugin-skew-protection",
+  "version": "0.1.0",
+  "description": "Bundler-agnostic plugin for skew-protection on Netlify",
+  "type": "module",
+  "engines": {
+    "node": "^20.6.1 || >=22"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./rolldown": "./dist/rolldown.js",
+    "./rollup": "./dist/rollup.js",
+    "./vite": "./dist/vite.js",
+    "./webpack": "./dist/webpack.js"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsup-node",
+    "prepack": "npm run build",
+    "test": "vitest run",
+    "test:dev": "vitest",
+    "test:ci": "vitest run",
+    "dev": "tsup-node --watch",
+    "publint": "npx -y publint --strict"
+  },
+  "keywords": [
+    "netlify",
+    "rolldown",
+    "skew-protection",
+    "unplugin",
+    "vite-plugin",
+    "webpack-plugin"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netlify/framework-adapters.git",
+    "directory": "packages/unplugin-skew-protection"
+  },
+  "bugs": {
+    "url": "https://github.com/netlify/framework-adapters/issues"
+  },
+  "author": "Netlify Inc.",
+  "devDependencies": {
+    "@rollup/plugin-html": "^2.0.0",
+    "@types/node": "^20.19.43",
+    "html-webpack-plugin": "^5.6.8",
+    "rolldown": "^1.2.5",
+    "rollup": "^4.62.4",
+    "tsup": "^8.5.1",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.11",
+    "webpack": "^5.109.2"
+  },
+  "dependencies": {
+    "es-module-lexer": "^2.3.2",
+    "magic-string": "^1.2.2",
+    "parse5": "^8.0.1",
+    "unplugin": "^3.3.0"
+  },
+  "peerDependencies": {
+    "html-webpack-plugin": "^5",
+    "rolldown": "^1",
+    "rollup": "^3 || ^4",
+    "vite": "^4 || ^5 || ^6 || ^7 || ^8",
+    "webpack": "^5"
+  },
+  "peerDependenciesMeta": {
+    "html-webpack-plugin": {
+      "optional": true
+    },
+    "rolldown": {
+      "optional": true
+    },
+    "rollup": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
+  }
+}
