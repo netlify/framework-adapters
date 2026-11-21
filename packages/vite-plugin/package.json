@@ -43,7 +43,7 @@
     "playwright": "^1.61.0",
     "tsup": "^8.5.1",
     "vite": "^6.4.3",
-    "vitest": "^4.1.9"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "@netlify/dev": "^5.0.2",
