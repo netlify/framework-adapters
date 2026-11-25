@@ -57,7 +57,8 @@ const TARGETS: Record<BuildTarget, Target> = {
 
   edge: {
     file: '.netlify/v1/edge-functions/server.mjs',
-    // Edge functions have no `preferStatic`, so static paths are excluded.
+    // Edge functions have no `preferStatic`, so static paths are excluded, and
+    // need `cache: "manual"` for the app's caching headers to apply.
     render: ({ entrypoint, displayName, staticPaths }) => js`
       ${GENERATED_FILE_MARKER}
       import serverEntrypoint from "${entrypoint}";
@@ -73,6 +74,7 @@ const TARGETS: Record<BuildTarget, Target> = {
         generator: "${GENERATOR}",
         path: "/*",
         excludedPath: ${JSON.stringify(staticPaths)},
+        cache: "manual",
       };
     `,
   },
@@ -107,6 +109,13 @@ const findServerEntries = async (root: string, directory: string): Promise<strin
   return files.filter((file) => SERVER_ENTRY_BASENAMES.has(file)).map((file) => `${directory}/${file}`)
 }
 
+// Versions before the marker only wrote the `generator` line.
+const isGenerated = async (path: string) => {
+  const contents = await readFile(path, 'utf8').catch(() => '')
+
+  return contents.startsWith(GENERATED_FILE_MARKER) || contents.includes(`generator: "${name}@`)
+}
+
 // A project can have one server only.
 const assertNoOtherServer = async (root: string) => {
   const generatedEntry = TARGETS.server.file
@@ -114,9 +123,7 @@ const assertNoOtherServer = async (root: string) => {
   const otherEntries = await findServerEntries(root, USER_SERVER_DIRECTORY)
 
   for (const entry of frameworkEntries) {
-    const contents = await readFile(join(root, entry), 'utf8').catch(() => undefined)
-
-    if (entry !== generatedEntry || !contents?.startsWith(GENERATED_FILE_MARKER)) {
+    if (entry !== generatedEntry || !(await isGenerated(join(root, entry)))) {
       otherEntries.push(entry)
     }
   }
@@ -146,19 +153,52 @@ const getServerEntrypoint = (bundle: Rollup.OutputBundle, outDir: string): strin
   return join(outDir, entryChunks[0].fileName)
 }
 
+const listFiles = async (directory: string): Promise<string[] | undefined> => {
+  const entries = await readdir(directory, { recursive: true, withFileTypes: true }).catch(() => undefined)
+
+  return entries
+    ?.filter((entry) => entry.isFile())
+    .map((entry) => toPosixPath(relative(directory, join(entry.parentPath, entry.name))))
+}
+
+// Every URL the CDN serves from the client build, including the extensionless
+// paths of HTML files.
 const getStaticPaths = async (config: ResolvedConfig): Promise<string[]> => {
-  const assetsDir = config.environments.client.build.assetsDir
-  const paths = [`/${toPosixPath(assetsDir)}/*`]
+  const base = new URL(config.base, 'http://localhost').pathname
+  const client = config.environments.client.build
+  const files = await listFiles(resolve(config.root, client.outDir))
+  const paths = new Set<string>()
 
-  if (config.publicDir) {
-    const entries = await readdir(config.publicDir, { withFileTypes: true }).catch(() => [])
+  // The client build hasn't run yet, so fall back to what it will contain.
+  if (files === undefined) {
+    paths.add(`${base}${toPosixPath(client.assetsDir)}/*`)
 
-    for (const entry of entries) {
-      paths.push(entry.isDirectory() ? `/${entry.name}/*` : `/${entry.name}`)
+    const publicFiles = config.publicDir ? await listFiles(config.publicDir) : undefined
+
+    for (const file of publicFiles ?? []) {
+      paths.add(`${base}${file}`)
+    }
+
+    return [...paths].sort()
+  }
+
+  for (const file of files) {
+    paths.add(`${base}${file}`)
+
+    if (file === 'index.html' || file.endsWith('/index.html')) {
+      const directory = file.slice(0, -'index.html'.length)
+
+      paths.add(`${base}${directory}`)
+
+      if (directory !== '') {
+        paths.add(`${base}${directory.slice(0, -1)}`)
+      }
+    } else if (file.endsWith('.html')) {
+      paths.add(`${base}${file.slice(0, -'.html'.length)}`)
     }
   }
 
-  return paths
+  return [...paths].sort()
 }
 
 const removeOtherTargets = async (root: string, target: BuildTarget) => {
@@ -168,9 +208,8 @@ const removeOtherTargets = async (root: string, target: BuildTarget) => {
     }
 
     const path = join(root, file)
-    const contents = await readFile(path, 'utf8').catch(() => undefined)
 
-    if (contents?.startsWith(GENERATED_FILE_MARKER)) {
+    if (await isGenerated(path)) {
       await rm(path)
     }
   }
@@ -181,21 +220,61 @@ interface FrameworksConfig {
   [key: string]: unknown
 }
 
-const includeInServer = async (root: string, outDir: string) => {
-  const configPath = join(root, NETLIFY_CONFIG_FILE)
-  const config = await readFile(configPath, 'utf8')
-    .then((contents) => JSON.parse(contents) as FrameworksConfig)
-    .catch((): FrameworksConfig => ({}))
-  const pattern = `${toPosixPath(relative(root, outDir))}/**`
-  const includedFiles = config.server?.includedFiles ?? []
+const readFrameworksConfig = async (configPath: string): Promise<FrameworksConfig | undefined> => {
+  let contents: string
 
-  config.server = {
-    ...config.server,
-    includedFiles: includedFiles.includes(pattern) ? includedFiles : [...includedFiles, pattern],
+  try {
+    contents = await readFile(configPath, 'utf8')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return undefined
+    }
+
+    throw error
   }
 
-  await mkdir(join(root, '.netlify/v1'), { recursive: true })
-  await writeFile(configPath, JSON.stringify(config, null, 2))
+  try {
+    return JSON.parse(contents) as FrameworksConfig
+  } catch (error) {
+    throw new Error(`Could not parse ${NETLIFY_CONFIG_FILE}`, { cause: error })
+  }
+}
+
+// Adds the SSR output to the server's `includedFiles`, or removes it when the
+// server build deploys elsewhere.
+const updateServerIncludedFiles = async (root: string, outDir: string, include: boolean) => {
+  const configPath = join(root, NETLIFY_CONFIG_FILE)
+  const config = await readFrameworksConfig(configPath)
+  const pattern = `${toPosixPath(relative(root, outDir))}/**`
+  const includedFiles = config?.server?.includedFiles ?? []
+
+  if (include === includedFiles.includes(pattern)) {
+    return
+  }
+
+  const nextConfig: FrameworksConfig = { ...config }
+  const server = { ...config?.server }
+
+  server.includedFiles = include ? [...includedFiles, pattern] : includedFiles.filter((file) => file !== pattern)
+
+  if (server.includedFiles.length === 0) {
+    delete server.includedFiles
+  }
+
+  if (Object.keys(server).length === 0) {
+    delete nextConfig.server
+  } else {
+    nextConfig.server = server
+  }
+
+  if (Object.keys(nextConfig).length === 0) {
+    await rm(configPath)
+
+    return
+  }
+
+  await mkdir(dirname(configPath), { recursive: true })
+  await writeFile(configPath, JSON.stringify(nextConfig, null, 2))
 }
 
 export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
@@ -242,14 +321,14 @@ export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
       const outputPath = join(root, file)
       const outDir = resolve(root, this.environment.config.build.outDir)
       const serverEntrypoint = getServerEntrypoint(bundle, outDir)
-      let entrypoint = toPosixPath(relative(join(outputPath, '..'), serverEntrypoint))
+      let entrypoint = toPosixPath(relative(dirname(outputPath), serverEntrypoint))
 
       if (!entrypoint.startsWith('.')) {
         entrypoint = `./${entrypoint}`
       }
 
       await removeOtherTargets(root, target)
-      await mkdir(join(outputPath, '..'), { recursive: true })
+      await mkdir(dirname(outputPath), { recursive: true })
       await writeFile(
         outputPath,
         render({
@@ -259,9 +338,7 @@ export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
         }),
       )
 
-      if (target === 'server') {
-        await includeInServer(root, outDir)
-      }
+      await updateServerIncludedFiles(root, outDir, target === 'server')
 
       createLoggerFromViteLogger(resolvedConfig.logger).log(`✓ Wrote SSR entry point to ${file}\n`)
     },

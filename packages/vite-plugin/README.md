@@ -60,8 +60,8 @@ adapter or plugin. They're currently supported for TanStack Start and SolidStart
 - `build.enabled` (boolean, default: `false`): Prepare the server build for deployment to Netlify
 - `build.target` (`'function'` | `'edge'` | `'server'`, default: `'function'`): Where the server build deploys
   - `'function'`: a [Netlify Function](https://docs.netlify.com/build/functions/overview/)
-  - `'edge'`: a [Netlify Edge Function](https://docs.netlify.com/build/edge-functions/overview/). Requests for the
-    client build's assets and for files in the public directory are left to the CDN.
+  - `'edge'`: a [Netlify Edge Function](https://docs.netlify.com/build/edge-functions/overview/). Requests for files in
+    the client build are left to the CDN.
   - `'server'`: a [Netlify Server](https://docs.netlify.com/build/server/), for apps that need a long-lived process,
     such as ones that stream updates to clients
 - `build.edgeSSR` (boolean, deprecated): Use `build.target: 'edge'` instead
