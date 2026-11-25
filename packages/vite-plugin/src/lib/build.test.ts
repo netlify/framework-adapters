@@ -143,9 +143,20 @@ describe('build targets', () => {
 
   test('falls back to the assets and public directories before the client build has run', async () => {
     const root = await createProject()
+    await mkdir(join(root, 'public/about'), { recursive: true })
+    await writeFile(join(root, 'public/about/index.html'), '')
+    await writeFile(join(root, 'public/docs.html'), '')
     await buildProject(root, { target: 'edge' })
 
-    expect(await readExcludedPath(root)).toEqual(['/assets/*', '/favicon.ico'])
+    expect(await readExcludedPath(root)).toEqual([
+      '/about',
+      '/about/',
+      '/about/index.html',
+      '/assets/*',
+      '/docs',
+      '/docs.html',
+      '/favicon.ico',
+    ])
   })
 
   test('writes a server entry and includes the SSR output in the server', async () => {

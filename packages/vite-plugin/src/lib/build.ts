@@ -166,23 +166,16 @@ const listFiles = async (directory: string): Promise<string[] | undefined> => {
 const getStaticPaths = async (config: ResolvedConfig): Promise<string[]> => {
   const base = new URL(config.base, 'http://localhost').pathname
   const client = config.environments.client.build
-  const files = await listFiles(resolve(config.root, client.outDir))
   const paths = new Set<string>()
+  let files = await listFiles(resolve(config.root, client.outDir))
 
   // The client build hasn't run yet, so fall back to what it will contain.
   if (files === undefined) {
     paths.add(`${base}${toPosixPath(client.assetsDir)}/*`)
-
-    const publicFiles = config.publicDir ? await listFiles(config.publicDir) : undefined
-
-    for (const file of publicFiles ?? []) {
-      paths.add(`${base}${file}`)
-    }
-
-    return [...paths].sort()
+    files = config.publicDir ? await listFiles(config.publicDir) : undefined
   }
 
-  for (const file of files) {
+  for (const file of files ?? []) {
     paths.add(`${base}${file}`)
 
     if (file === 'index.html' || file.endsWith('/index.html')) {
