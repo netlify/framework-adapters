@@ -19,7 +19,7 @@ export default function createNetlifyTanstackStartPlugin(options: PluginOptions 
   const netlifyPlugin = createNetlifyPlugin({
     build: {
       enabled: true,
-      edgeSSR: options.edgeSSR ?? false,
+      target: options.edgeSSR === true ? 'edge' : 'function',
     },
     ...options.dev,
   }) as Plugin[]

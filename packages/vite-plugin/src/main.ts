@@ -7,6 +7,9 @@ import type { Plugin } from 'vite'
 
 import { createLoggerFromViteLogger, type Logger } from './lib/logger.js'
 import { createBuildPlugin } from './lib/build.js'
+import type { BuildPluginOptions, BuildTarget, BuildTargetOptions } from './lib/types.js'
+
+export type { BuildTarget, BuildTargetOptions }
 
 export interface NetlifyPluginOptions extends Features {
   /**
@@ -20,7 +23,7 @@ export interface NetlifyPluginOptions extends Features {
    *
    * @experimental These options are experimental and only tested on some versions of some frameworks; see below.
    */
-  build?: {
+  build?: BuildPluginOptions & {
     /**
      * Prepare the server build for deployment to Netlify - no additional configuration,
      * plugins, or adapters necessary (default: false).
@@ -28,15 +31,6 @@ export interface NetlifyPluginOptions extends Features {
      * This is currently supported for TanStack Start and SolidStart 2 projects.
      */
     enabled?: boolean
-    /**
-     * Deploy SSR handler to Netlify Edge Functions instead of Netlify Functions (default: false).
-     */
-    edgeSSR?: boolean
-    /**
-     * A display name for the serverless function or edge function deployed to Netlify
-     * (default: `@netlify/vite-plugin server handler`).
-     */
-    displayName?: string
   }
 }
 
