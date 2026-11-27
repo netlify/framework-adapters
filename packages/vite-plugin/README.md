@@ -58,6 +58,12 @@ The `build` options prepare your app's server build for deployment to Netlify, s
 adapter or plugin. They're currently supported for TanStack Start and SolidStart 2 projects.
 
 - `build.enabled` (boolean, default: `false`): Prepare the server build for deployment to Netlify
+- `build.target` (`'function'` | `'edge'` | `'server'`, default: `'function'`): Where the server build deploys
+  - `'function'`: a [Netlify Function](https://docs.netlify.com/build/functions/overview/)
+  - `'edge'`: a [Netlify Edge Function](https://docs.netlify.com/build/edge-functions/overview/). Requests for files in
+    the client build are left to the CDN.
+  - `'server'`: a [Netlify Server](https://docs.netlify.com/build/server/), for apps that need a long-lived process,
+    such as ones that stream updates to clients
 - `build.displayName` (string, default: `@netlify/vite-plugin server handler`): A display name for the serverless
   function or edge function deployed to Netlify
 
@@ -69,3 +75,16 @@ export default defineConfig({
   plugins: [netlify({ build: { enabled: true } })],
 })
 ```
+
+To deploy the server build to a Netlify Server instead:
+
+```js
+netlify({ build: { enabled: true, target: 'server' } })
+```
+
+> [!WARNING]
+>
+> The generated function or edge function handles every path except Netlify's own `/.netlify/*` routes and, for an edge
+> function, the files in your client build. If you have your own Netlify Functions (typically in `netlify/functions`)
+> for which you've configured a `path`, the generated handler can receive requests meant for them. There is currently no
+> option to exclude more paths.

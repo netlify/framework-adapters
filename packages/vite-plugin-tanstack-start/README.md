@@ -24,6 +24,8 @@ The plugin accepts the following options:
 
 ```typescript
 {
+  // Where the server build deploys: 'function' (default), 'edge' or 'server'.
+  target: 'function',
   dev: {
     edgeFunctions: {
       enabled: false,

@@ -1,13 +1,14 @@
 import type { Plugin } from 'vite'
-import createNetlifyPlugin, { type NetlifyPluginOptions } from '@netlify/vite-plugin'
+import createNetlifyPlugin, { type BuildTarget, type NetlifyPluginOptions } from '@netlify/vite-plugin'
 
 type DevOptions = Omit<NetlifyPluginOptions, 'build' | 'middleware'>
 
 export interface PluginOptions {
   /**
-   * Deploy SSR handler to Netlify Edge Functions instead of Netlify Functions (default: false).
+   * Where the server build deploys: a Netlify Function, Edge Function or
+   * Server (default: `'function'`).
    */
-  edgeSSR?: boolean
+  target?: BuildTarget
   /**
    * Optional configuration of Netlify dev features
    * @see {link https://www.npmjs.com/package/@netlify/vite-plugin}
@@ -19,7 +20,7 @@ export default function createNetlifyTanstackStartPlugin(options: PluginOptions 
   const netlifyPlugin = createNetlifyPlugin({
     build: {
       enabled: true,
-      edgeSSR: options.edgeSSR ?? false,
+      target: options.target,
     },
     ...options.dev,
   }) as Plugin[]
