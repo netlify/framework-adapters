@@ -100,12 +100,34 @@ describe('build targets', () => {
     ])
   })
 
-  test("prefixes the edge function's excluded paths with the base", async () => {
+  // https://vite.dev/config/shared-options#base
+  test.for([
+    { base: '', prefix: '/' },
+    { base: './', prefix: '/' },
+    { base: '/', prefix: '/' },
+    { base: '/foo', prefix: '/foo/' },
+    { base: '/foo/', prefix: '/foo/' },
+    { base: 'https://example.com/foo', prefix: '/foo/' },
+    { base: 'https://example.com/foo/', prefix: '/foo/' },
+  ])("prefixes the edge function's excluded paths with the base $base", async ({ base, prefix }) => {
     const root = await createProject()
-    await writeClientBuild(root, ['assets/app.js'])
-    await buildProject(root, { target: 'edge' }, '/app/')
+    await writeClientBuild(root, ['index.html', 'bar/index.html', 'docs.html', 'assets/app.js'])
+    await buildProject(root, { target: 'edge' }, base)
 
-    expect(await readExcludedPath(root)).toEqual(['/.netlify/*', '/app/assets/app.js'])
+    const staticPaths = [
+      prefix,
+      `${prefix}assets/app.js`,
+      `${prefix}bar`,
+      `${prefix}bar/`,
+      `${prefix}bar/index.html`,
+      `${prefix}docs`,
+      `${prefix}docs.html`,
+      `${prefix}index.html`,
+      // The root's path without the trailing slash, which only exists under a base.
+      ...(prefix === '/' ? [] : [prefix.slice(0, -1)]),
+    ]
+
+    expect(await readExcludedPath(root)).toEqual(['/.netlify/*', ...staticPaths.sort()])
   })
 
   test('falls back to the assets and public directories before the client build has run', async () => {

@@ -107,13 +107,10 @@ const isGenerated = async (path: string) => {
 const assertNoOtherServer = async (root: string) => {
   const generatedEntry = TARGETS.server.file
   const frameworkEntries = await findServerEntries(root, dirname(generatedEntry))
-  const otherEntries = await findServerEntries(root, USER_SERVER_DIRECTORY)
-
-  for (const entry of frameworkEntries) {
-    if (entry !== generatedEntry || !(await isGenerated(join(root, entry)))) {
-      otherEntries.push(entry)
-    }
-  }
+  const otherEntries = [
+    ...(await findServerEntries(root, USER_SERVER_DIRECTORY)),
+    ...frameworkEntries.filter((entry) => entry !== generatedEntry),
+  ]
 
   if (otherEntries.length !== 0) {
     throw new Error(
@@ -166,12 +163,12 @@ const getStaticPaths = async (config: ResolvedConfig): Promise<string[]> => {
     paths.add(`${base}${file}`)
 
     if (file === 'index.html' || file.endsWith('/index.html')) {
-      const directory = file.slice(0, -'index.html'.length)
+      const path = `${base}${file.slice(0, -'index.html'.length)}`
 
-      paths.add(`${base}${directory}`)
+      paths.add(path)
 
-      if (directory !== '') {
-        paths.add(`${base}${directory.slice(0, -1)}`)
+      if (path !== '/') {
+        paths.add(path.slice(0, -1))
       }
     } else if (file.endsWith('.html')) {
       paths.add(`${base}${file.slice(0, -'.html'.length)}`)
