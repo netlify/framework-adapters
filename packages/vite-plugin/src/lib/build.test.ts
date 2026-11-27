@@ -73,7 +73,7 @@ describe('build targets', () => {
     const file = join(root, '.netlify/v1/functions/server.mjs')
     const { default: handler, config } = await importModule<{ default: Handler; config: unknown }>(file)
 
-    expect(config).toMatchObject({ path: '/*', preferStatic: true })
+    expect(config).toMatchObject({ path: '/*', excludedPath: ['/.netlify/*'], preferStatic: true })
     expect(await (await handler(new Request('http://localhost/a'))).text()).toBe('hello from /a')
   })
 
@@ -87,6 +87,7 @@ describe('build targets', () => {
     expect(contents).toContain('path: "/*"')
     expect(contents).toContain('cache: "manual"')
     expect(await readExcludedPath(root)).toEqual([
+      '/.netlify/*',
       '/',
       '/about',
       '/about/',
@@ -104,7 +105,7 @@ describe('build targets', () => {
     await writeClientBuild(root, ['assets/app.js'])
     await buildProject(root, { target: 'edge' }, '/app/')
 
-    expect(await readExcludedPath(root)).toEqual(['/app/assets/app.js'])
+    expect(await readExcludedPath(root)).toEqual(['/.netlify/*', '/app/assets/app.js'])
   })
 
   test('falls back to the assets and public directories before the client build has run', async () => {
@@ -115,6 +116,7 @@ describe('build targets', () => {
     await buildProject(root, { target: 'edge' })
 
     expect(await readExcludedPath(root)).toEqual([
+      '/.netlify/*',
       '/about',
       '/about/',
       '/about/index.html',

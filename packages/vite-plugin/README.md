@@ -81,3 +81,10 @@ To deploy the server build to a Netlify Server instead:
 ```js
 netlify({ build: { enabled: true, target: 'server' } })
 ```
+
+> [!WARNING]
+>
+> The generated function or edge function handles every path except Netlify's own `/.netlify/*` routes and, for an edge
+> function, the files in your client build. If you have your own Netlify Functions (typically in `netlify/functions`)
+> for which you've configured a `path`, the generated handler can receive requests meant for them. There is currently no
+> option to exclude more paths.
