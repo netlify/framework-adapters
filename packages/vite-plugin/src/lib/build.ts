@@ -11,7 +11,6 @@ import type { BuildPluginOptions, BuildTarget } from './types.js'
 
 export type { BuildPluginOptions }
 
-const NETLIFY_CONFIG_FILE = '.netlify/v1/config.json'
 const USER_SERVER_DIRECTORY = 'netlify/server'
 const SERVER_ENTRY_BASENAMES = new Set(['index.js', 'index.mjs', 'index.ts', 'index.mts'])
 
@@ -195,68 +194,6 @@ const removeOtherTargets = async (root: string, target: BuildTarget) => {
   }
 }
 
-interface FrameworksConfig {
-  server?: { includedFiles?: string[]; [key: string]: unknown }
-  [key: string]: unknown
-}
-
-const readFrameworksConfig = async (configPath: string): Promise<FrameworksConfig | undefined> => {
-  let contents: string
-
-  try {
-    contents = await readFile(configPath, 'utf8')
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return undefined
-    }
-
-    throw error
-  }
-
-  try {
-    return JSON.parse(contents) as FrameworksConfig
-  } catch (error) {
-    throw new Error(`Could not parse ${NETLIFY_CONFIG_FILE}`, { cause: error })
-  }
-}
-
-// Adds the SSR output to the server's `includedFiles`, or removes it when the
-// server build deploys elsewhere.
-const updateServerIncludedFiles = async (root: string, outDir: string, include: boolean) => {
-  const configPath = join(root, NETLIFY_CONFIG_FILE)
-  const config = await readFrameworksConfig(configPath)
-  const pattern = `${toPosixPath(relative(root, outDir))}/**`
-  const includedFiles = config?.server?.includedFiles ?? []
-
-  if (include === includedFiles.includes(pattern)) {
-    return
-  }
-
-  const nextConfig: FrameworksConfig = { ...config }
-  const server = { ...config?.server }
-
-  server.includedFiles = include ? [...includedFiles, pattern] : includedFiles.filter((file) => file !== pattern)
-
-  if (server.includedFiles.length === 0) {
-    delete server.includedFiles
-  }
-
-  if (Object.keys(server).length === 0) {
-    delete nextConfig.server
-  } else {
-    nextConfig.server = server
-  }
-
-  if (Object.keys(nextConfig).length === 0) {
-    await rm(configPath)
-
-    return
-  }
-
-  await mkdir(dirname(configPath), { recursive: true })
-  await writeFile(configPath, JSON.stringify(nextConfig, null, 2))
-}
-
 export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
   const target = options.target ?? 'function'
   let resolvedConfig: ResolvedConfig
@@ -311,8 +248,6 @@ export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
           ],
         }),
       )
-
-      await updateServerIncludedFiles(root, outDir, target === 'server')
 
       createLoggerFromViteLogger(resolvedConfig.logger).log(`✓ Wrote SSR entry point to ${file}\n`)
     },
