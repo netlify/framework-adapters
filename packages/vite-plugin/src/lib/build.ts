@@ -107,10 +107,13 @@ const isGenerated = async (path: string) => {
 const assertNoOtherServer = async (root: string) => {
   const generatedEntry = TARGETS.server.file
   const frameworkEntries = await findServerEntries(root, dirname(generatedEntry))
-  const otherEntries = [
-    ...(await findServerEntries(root, USER_SERVER_DIRECTORY)),
-    ...frameworkEntries.filter((entry) => entry !== generatedEntry),
-  ]
+  const otherEntries = await findServerEntries(root, USER_SERVER_DIRECTORY)
+
+  for (const entry of frameworkEntries) {
+    if (entry !== generatedEntry || !(await isGenerated(join(root, entry)))) {
+      otherEntries.push(entry)
+    }
+  }
 
   if (otherEntries.length !== 0) {
     throw new Error(
