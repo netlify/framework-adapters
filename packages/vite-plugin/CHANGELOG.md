@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/netlify/framework-adapters/compare/vite-plugin-v3.0.1...vite-plugin-v3.1.0) (2026-11-27)
+
+
+### Features
+
+* support skew protection ([#70](https://github.com/netlify/framework-adapters/issues/70)) ([991ea60](https://github.com/netlify/framework-adapters/commit/991ea60022ba50d1cb7407ad77474dd509612762))
+
 ## [3.0.1](https://github.com/netlify/framework-adapters/compare/vite-plugin-v3.0.0...vite-plugin-v3.0.1) (2026-08-28)
 
 
