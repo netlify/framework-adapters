@@ -64,7 +64,6 @@ adapter or plugin. They're currently supported for TanStack Start and SolidStart
     the client build are left to the CDN.
   - `'server'`: a [Netlify Server](https://docs.netlify.com/build/server/), for apps that need a long-lived process,
     such as ones that stream updates to clients
-- `build.edgeSSR` (boolean, deprecated): Use `build.target: 'edge'` instead
 - `build.displayName` (string, default: `@netlify/vite-plugin server handler`): A display name for the serverless
   function or edge function deployed to Netlify
 

@@ -2,7 +2,6 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { sep as posixSep } from 'node:path/posix'
 
-import { warning } from '@netlify/dev-utils'
 import js from 'dedent'
 import type { Plugin, ResolvedConfig, Rollup } from 'vite'
 
@@ -89,19 +88,6 @@ const TARGETS: Record<BuildTarget, Target> = {
 }
 
 const toPosixPath = (path: string) => path.split(sep).join(posixSep)
-
-export const resolveBuildTarget = (options: BuildPluginOptions = {}): BuildTarget => {
-  // Widened, as JavaScript configs can set both.
-  const { target, edgeSSR }: { target?: BuildTarget; edgeSSR?: boolean } = options
-
-  if (edgeSSR === true && target !== undefined && target !== 'edge') {
-    throw new Error(
-      `build.edgeSSR deploys the server build to an Edge Function, but build.target is set to '${target}'. Remove build.edgeSSR, which is deprecated, and keep build.target.`,
-    )
-  }
-
-  return target ?? (edgeSSR === true ? 'edge' : 'function')
-}
 
 const findServerEntries = async (root: string, directory: string): Promise<string[]> => {
   const files = await readdir(join(root, directory)).catch((): string[] => [])
@@ -271,9 +257,7 @@ const updateServerIncludedFiles = async (root: string, outDir: string, include: 
 }
 
 export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
-  const target = resolveBuildTarget(options)
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const usesEdgeSSR = options.edgeSSR === true
+  const target = options.target ?? 'function'
   let resolvedConfig: ResolvedConfig
 
   return {
@@ -290,14 +274,6 @@ export function createBuildPlugin(options: BuildPluginOptions = {}): Plugin {
     /** @see {@link https://vite.dev/guide/api-plugin.html#configresolved} */
     configResolved(config) {
       resolvedConfig = config
-
-      if (usesEdgeSSR) {
-        createLoggerFromViteLogger(config.logger).warn(
-          warning(
-            `build.edgeSSR is deprecated and will be removed in a future version. Use build.target: 'edge' instead.`,
-          ),
-        )
-      }
     },
 
     /** @see {@link https://rollupjs.org/plugin-development/#buildstart} */

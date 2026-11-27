@@ -7,9 +7,9 @@ import type { Plugin } from 'vite'
 
 import { createLoggerFromViteLogger, type Logger } from './lib/logger.js'
 import { createBuildPlugin } from './lib/build.js'
-import type { BuildPluginOptions, BuildTarget, BuildTargetOptions } from './lib/types.js'
+import type { BuildPluginOptions, BuildTarget } from './lib/types.js'
 
-export type { BuildTarget, BuildTargetOptions }
+export type { BuildTarget }
 
 export interface NetlifyPluginOptions extends Features {
   /**

@@ -3,10 +3,10 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { build, createLogger } from 'vite'
+import { build } from 'vite'
 import { afterEach, describe, expect, test } from 'vitest'
 
-import { createBuildPlugin, resolveBuildTarget, type BuildPluginOptions } from './build.js'
+import { createBuildPlugin, type BuildPluginOptions } from './build.js'
 
 const cleanupJobs: (() => Promise<void>)[] = []
 
@@ -29,23 +29,14 @@ const createProject = async () => {
 }
 
 const buildProject = async (root: string, options: BuildPluginOptions, base?: string) => {
-  const warnings: string[] = []
-  const logger = createLogger('silent')
-
-  logger.warn = (message) => {
-    warnings.push(message)
-  }
-
   await build({
     root,
     base,
-    customLogger: logger,
+    logLevel: 'silent',
     build: { ssr: 'server.js', outDir: 'dist/server' },
     environments: { client: { build: { outDir: 'dist/client' } } },
     plugins: [createBuildPlugin(options)],
   })
-
-  return warnings
 }
 
 const writeClientBuild = async (root: string, files: string[]) => {
@@ -73,31 +64,6 @@ const exists = (path: string) =>
     () => true,
     () => false,
   )
-
-describe('resolveBuildTarget', () => {
-  test('defaults to a function', () => {
-    expect(resolveBuildTarget()).toBe('function')
-    expect(resolveBuildTarget({ edgeSSR: false })).toBe('function')
-  })
-
-  test('uses the target that is set', () => {
-    expect(resolveBuildTarget({ target: 'server' })).toBe('server')
-    expect(resolveBuildTarget({ target: 'edge' })).toBe('edge')
-  })
-
-  test('treats the deprecated edgeSSR flag as the edge target', () => {
-    expect(resolveBuildTarget({ edgeSSR: true })).toBe('edge')
-  })
-
-  test('fails when edgeSSR is set along with another target', () => {
-    // @ts-expect-error -- mutually exclusive
-    expect(() => resolveBuildTarget({ target: 'server', edgeSSR: true })).toThrow(
-      "build.edgeSSR deploys the server build to an Edge Function, but build.target is set to 'server'",
-    )
-    // @ts-expect-error -- mutually exclusive
-    expect(() => resolveBuildTarget({ target: 'function', edgeSSR: true })).toThrow("build.target is set to 'function'")
-  })
-})
 
 describe('build targets', () => {
   test('writes a function that serves the SSR entry', async () => {
@@ -229,22 +195,6 @@ describe('build targets', () => {
 
     expect(await exists(join(root, '.netlify/v1/functions/server.mjs'))).toBe(false)
     expect(await exists(join(root, '.netlify/v1/server/index.mjs'))).toBe(true)
-  })
-
-  test('warns that edgeSSR is deprecated, and still deploys to an edge function', async () => {
-    const root = await createProject()
-    const warnings = await buildProject(root, { edgeSSR: true })
-
-    expect(warnings).toEqual([expect.stringContaining('build.edgeSSR is deprecated')])
-    expect(warnings[0]).toContain("Use build.target: 'edge' instead")
-    expect(await exists(join(root, '.netlify/v1/edge-functions/server.mjs'))).toBe(true)
-  })
-
-  test("doesn't warn about edgeSSR when it is off or a target is set", async () => {
-    const root = await createProject()
-
-    expect(await buildProject(root, { edgeSSR: false })).toEqual([])
-    expect(await buildProject(root, { target: 'edge' })).toEqual([])
   })
 
   test('fails when the project already has its own server', async () => {
